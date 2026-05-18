@@ -92,10 +92,10 @@ export function OperatingModeSwitcher({ collapsed = false, onQuickNav }: Props) 
         }
         .orm-switcher__label {
           margin: 0 0 8px;
-          font-size: 0.52rem;
-          letter-spacing: 0.20em;
+          font-size: 0.54rem;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
-          color: rgba(148, 165, 210, 0.60);
+          color: var(--c4);
           font-weight: 600;
         }
         .orm-switcher__seg {
@@ -111,9 +111,9 @@ export function OperatingModeSwitcher({ collapsed = false, onQuickNav }: Props) 
         .orm-switcher__btn {
           border: none;
           background: transparent;
-          color: rgba(180, 178, 220, 0.58);
+          color: var(--c4);
           font-family: var(--font-ui);
-          font-size: 0.60rem;
+          font-size: 0.64rem;
           font-weight: 500;
           padding: 6px 3px;
           border-radius: 6px;
@@ -128,7 +128,8 @@ export function OperatingModeSwitcher({ collapsed = false, onQuickNav }: Props) 
           background: rgba(255, 255, 255, 0.06);
         }
         .orm-switcher__btn--on {
-          color: rgba(230, 226, 255, 0.97);
+          color: var(--c1);
+          font-weight: 600;
           background: rgba(255, 255, 255, 0.10);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.16),
@@ -171,9 +172,9 @@ export function OperatingModeSwitcher({ collapsed = false, onQuickNav }: Props) 
         }
         .orm-compress-hint {
           margin: 10px 0 0;
-          font-size: 0.68rem;
-          line-height: 1.48;
-          color: rgba(200, 212, 235, 0.80);
+          font-size: 0.66rem;
+          line-height: 1.5;
+          color: var(--c3);
         }
         @media (max-width: 1200px) {
           .orm-switcher__btn-full { display: none; }
