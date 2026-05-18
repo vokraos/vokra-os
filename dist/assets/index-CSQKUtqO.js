@@ -110,7 +110,7 @@ ${e.founderNotes}
         .orm-switcher {
           margin-bottom: 14px;
           padding: 0 0 14px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.052);
+          border-bottom: 1px solid var(--line-faint);
         }
         .orm-switcher__label {
           margin: 0 0 8px;
@@ -126,7 +126,7 @@ ${e.founderNotes}
           gap: 2px;
           background: rgba(0, 0, 0, 0.32);
           border-radius: 9px;
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          border: 1px solid var(--line-faint);
           padding: 3px;
           box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.48);
         }
@@ -19237,7 +19237,7 @@ ${XL(L,t)}`,[M,L,t]),q=g.useMemo(()=>ZL(L),[L]),X=g.useCallback((U,Ve)=>{y(pt=>(
         }
         .os-depth-strip {
           padding: 6px 0 8px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+          border-bottom: 1px solid var(--line-faint);
         }
         .nav-overlay {
           display: none;

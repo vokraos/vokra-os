@@ -168,15 +168,9 @@
 
 .cog-ribbon__chip--act {
   color: rgba(210, 220, 245, 0.92);
-  border-color: rgba(130, 155, 210, 0.2);
-}
-
-.cog-ribbon__chip--dna {
-  border-color: rgba(160, 140, 200, 0.15);
 }
 
 .cog-ribbon__chip--warn {
-  border-color: rgba(220, 180, 140, 0.28);
   color: rgba(235, 210, 190, 0.88);
 }
 
@@ -208,7 +202,7 @@
   margin-top: 10px;
   height: 2px;
   border-radius: 1px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--line-faint);
   overflow: hidden;
 }
 
@@ -352,7 +346,7 @@
 .cog-priority__memory {
   margin: 8px 0 0;
   padding-top: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-top: 1px solid var(--line-faint);
   font-size: 0.58rem;
   line-height: 1.4;
   color: rgba(150, 165, 195, 0.38);
@@ -720,7 +714,7 @@
   display: block;
   height: 2px;
   border-radius: 1px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--line-faint);
   position: relative;
   overflow: hidden;
 }
@@ -799,7 +793,7 @@
   display: block;
   height: 2px;
   border-radius: 1px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--line-faint);
   overflow: hidden;
 }
 
@@ -818,10 +812,11 @@
 }
 
 .cog-deck__launch {
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: linear-gradient(165deg, rgba(14, 16, 26, 0.75) 0%, rgba(6, 7, 12, 0.65) 100%);
+  padding: var(--s3, 12px) 0 0;
+  border-radius: 0;
+  border: none;
+  border-top: 1px solid var(--line-faint, rgba(255, 255, 255, 0.038));
+  background: transparent;
 }
 
 .cog-deck__launch-k {

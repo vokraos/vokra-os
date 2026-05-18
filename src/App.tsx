@@ -208,7 +208,7 @@ export default function App() {
         }
         .os-depth-strip {
           padding: 6px 0 8px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+          border-bottom: 1px solid var(--line-faint);
         }
         .nav-overlay {
           display: none;

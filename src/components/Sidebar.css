@@ -33,7 +33,7 @@
       rgba(4,  4,   8, 1.00) 100%
     );
 
-  border-right: 1px solid rgba(255, 255, 255, 0.062);
+  border-right: 1px solid var(--line-faint);
   backdrop-filter: blur(32px) saturate(110%);
   -webkit-backdrop-filter: blur(32px) saturate(110%);
 }
@@ -50,7 +50,7 @@
   background: transparent;
   cursor: pointer;
   border-radius: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.052);
+  border-bottom: 1px solid var(--line-faint);
   transition: background 0.20s var(--ease-out);
 }
 
@@ -134,7 +134,7 @@
   padding: 6px 8px 8px;
   display: grid;
   gap: 5px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  border-bottom: 1px solid var(--line-faint);
 }
 
 .sidebar__clean-day[data-collapsed="1"] .sidebar__clean-day-count,
@@ -154,7 +154,7 @@
 }
 
 .sidebar__clean-day-row input {
-  accent-color: #7b8fff;
+  accent-color: var(--accent);
   flex-shrink: 0;
 }
 
@@ -274,7 +274,7 @@
 
 /* Hover state — clear, readable */
 .sidebar__link:hover {
-  color: rgba(240, 237, 255, 0.94);
+  color: var(--c1);
   background: rgba(255, 255, 255, 0.055);
 }
 
@@ -297,7 +297,7 @@
   box-shadow:
     inset 0 1px 0 rgba(158, 168, 255, 0.28),
     inset 0 3px 16px rgba(0, 0, 0, 0.72),
-    0 0 0 1px rgba(123, 143, 255, 0.42);
+    0 0 0 1px var(--line-accent);
 
   transition:
     color 0ms,
@@ -375,7 +375,7 @@
   width: 18px;
   height: 2px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--line-faint);
   overflow: hidden;
 }
 
@@ -424,7 +424,7 @@
   flex-direction: column;
   gap: 8px;
   padding: 14px 4px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.055);
+  border-top: 1px solid var(--line-faint);
 }
 
 .sidebar__version {
@@ -454,7 +454,7 @@
   box-shadow:
     inset 0 1px 0 rgba(158, 168, 255, 0.24),
     inset 0 2px 10px rgba(0, 0, 0, 0.72),
-    0 0 0 1px rgba(123, 143, 255, 0.44),
+    0 0 0 1px var(--line-accent),
     0 0 18px rgba(100, 120, 255, 0.15);
 }
 
@@ -482,7 +482,7 @@
     width: min(272px, 90vw);
     transform: translateX(-102%);
     transition: transform 0.32s var(--ease-out);
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid var(--line-soft);
     box-shadow: 32px 0 80px rgba(0, 0, 0, 0.72);
   }
   .sidebar--open { transform: translateX(0); }

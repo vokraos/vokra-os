@@ -420,7 +420,7 @@ p {
   flex-wrap: wrap;
   background: rgba(0, 0, 0, 0.32);
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line-faint);
   padding: 3px;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.48);
 }
@@ -477,7 +477,7 @@ p {
 .style-pill {
   position: relative;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 1px solid var(--line-soft);
   background: rgba(255, 255, 255, 0.038);
   color: var(--c2);
   font-family: var(--font-ui);
@@ -494,7 +494,7 @@ p {
 }
 
 .style-pill:hover:not([aria-pressed="true"]):not(.style-pill--on) {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--line-med);
   color: var(--c1);
   background: rgba(255, 255, 255, 0.065);
 }

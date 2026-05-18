@@ -88,7 +88,7 @@ export function OperatingModeSwitcher({ collapsed = false, onQuickNav }: Props) 
         .orm-switcher {
           margin-bottom: 14px;
           padding: 0 0 14px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.052);
+          border-bottom: 1px solid var(--line-faint);
         }
         .orm-switcher__label {
           margin: 0 0 8px;
@@ -104,7 +104,7 @@ export function OperatingModeSwitcher({ collapsed = false, onQuickNav }: Props) 
           gap: 2px;
           background: rgba(0, 0, 0, 0.32);
           border-radius: 9px;
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          border: 1px solid var(--line-faint);
           padding: 3px;
           box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.48);
         }

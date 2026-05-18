@@ -7,7 +7,7 @@
 .app-shell[data-cognitive-depth="command"] .cmd-band {
   border-radius: 6px;
   border-width: 1px;
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: var(--line-med);
   border-left: 3px solid rgba(90, 140, 110, 0.55);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
 }
@@ -57,7 +57,7 @@
 }
 
 .app-shell[data-cognitive-depth="memory"] .mem-arch {
-  border-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--line-faint);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
