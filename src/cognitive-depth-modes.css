@@ -1,0 +1,389 @@
+/* Cognitive depth modes — global UX via [data-cognitive-depth] on .app-shell */
+
+.app-shell[data-cognitive-depth="command"] .dom {
+  display: none !important;
+}
+
+.app-shell[data-cognitive-depth="command"] .cmd-band {
+  border-radius: 6px;
+  border-width: 1px;
+  border-color: rgba(255, 255, 255, 0.14);
+  border-left: 3px solid rgba(90, 140, 110, 0.55);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+.app-shell[data-cognitive-depth="command"] .cmd-band__v {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.app-shell[data-cognitive-depth="command"] .depth-sw__btn {
+  padding: 5px 10px;
+  font-size: 0.48rem;
+}
+
+.app-shell[data-cognitive-depth="operations"] .main-stage {
+  letter-spacing: 0.01em;
+}
+
+.app-shell[data-cognitive-depth="operations"] .ops-floor {
+  border-color: rgba(123, 143, 255, 0.12);
+}
+
+.app-shell[data-cognitive-depth="operations"] .ops-floor__head {
+  border-bottom-color: rgba(123, 143, 255, 0.18);
+}
+
+.app-shell[data-cognitive-depth="operations"] .hero-triad__card {
+  border-color: rgba(123, 143, 255, 0.12);
+}
+
+.app-shell[data-cognitive-depth="analysis"] .topo-panel {
+  border-color: rgba(123, 143, 255, 0.28);
+  background: rgba(3, 6, 18, 0.65);
+}
+
+.app-shell[data-cognitive-depth="analysis"] .topo-card {
+  border-color: rgba(123, 143, 255, 0.12);
+}
+
+.app-shell[data-cognitive-depth="analysis"] .main-stage .view,
+.app-shell[data-cognitive-depth="analysis"] .mc {
+  max-width: min(1280px, 100%);
+}
+
+.app-shell[data-cognitive-depth="memory"] {
+  filter: saturate(0.92) brightness(0.97);
+}
+
+.app-shell[data-cognitive-depth="memory"] .mem-arch {
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.app-shell[data-cognitive-depth="memory"] .view__desc,
+.app-shell[data-cognitive-depth="memory"] .orch-lab__lede {
+  color: rgba(150, 155, 170, 0.55);
+}
+
+.app-shell[data-cognitive-depth="memory"] .cog-atmos__haze {
+  animation-duration: 120s !important;
+  opacity: 0.72 !important;
+}
+
+.app-shell[data-cognitive-depth="memory"] .cog-spine__pulse {
+  animation-duration: 28s !important;
+  opacity: 0.55;
+}
+
+.app-shell[data-cognitive-depth="simulation"] .sim-depth {
+  border-color: rgba(255, 190, 130, 0.22);
+  box-shadow: 0 0 24px rgba(255, 160, 80, 0.06);
+}
+
+.app-shell[data-cognitive-depth="simulation"] .depth-sw__btn--on {
+  border-color: rgba(255, 180, 120, 0.35);
+  color: rgba(255, 235, 210, 0.95);
+}
+
+.app-shell[data-cognitive-depth="simulation"] .sim-depth__if {
+  color: rgba(220, 200, 185, 0.88);
+}
+
+/* Executive pulse — shell breathes with micro-state (luxury pressure, no alarm) */
+@keyframes exec-pulse-breathe {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.012);
+  }
+}
+
+.app-shell[data-exec-pulse] {
+  animation: exec-pulse-breathe 14s ease-in-out infinite;
+}
+
+.app-shell[data-exec-pulse="overloaded"],
+.app-shell[data-exec-pulse="amplifying"],
+.app-shell[data-exec-pulse="fragmenting"] {
+  animation-duration: 9s;
+}
+
+.app-shell[data-exec-pulse="cooling"],
+.app-shell[data-exec-pulse="stabilizing"],
+.app-shell[data-exec-pulse="recovering"] {
+  animation-duration: 22s;
+}
+
+/* Signal hierarchy — passive fades, dominant sharpens */
+[data-sig-tier="passive"] {
+  opacity: 0.55;
+  filter: saturate(0.85);
+}
+
+[data-sig-tier="active"] {
+  opacity: 0.72;
+}
+
+[data-sig-tier="elevated"] {
+  opacity: 0.88;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+[data-sig-tier="critical"] {
+  opacity: 0.95;
+  filter: brightness(1.04);
+  box-shadow: 0 0 0 1px rgba(255, 200, 160, 0.08);
+}
+
+[data-sig-tier="dominant"] {
+  opacity: 1;
+  filter: brightness(1.06) contrast(1.02);
+  box-shadow: 0 0 0 1px rgba(255, 220, 190, 0.12), 0 0 12px rgba(120, 160, 255, 0.06);
+}
+
+/* Phase 6 — executive signal priority (overrides tier chrome when both set) */
+[data-sig-priority="ambient"] {
+  opacity: 0.4;
+  filter: saturate(0.75) blur(0.12px);
+  font-style: italic;
+}
+
+[data-sig-priority="monitored"] {
+  opacity: 0.66;
+}
+
+[data-sig-priority="elevated"] {
+  opacity: 0.88;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.035);
+}
+
+[data-sig-priority="dominant"] {
+  opacity: 1;
+  filter: brightness(1.05) contrast(1.04);
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 0 1px rgba(255, 220, 200, 0.11), 0 0 14px rgba(110, 150, 255, 0.07);
+}
+
+[data-sig-priority="critical"] {
+  opacity: 1;
+  filter: brightness(1.08) contrast(1.06);
+  letter-spacing: 0.025em;
+  box-shadow: 0 0 0 1px rgba(255, 190, 160, 0.16), 0 0 20px rgba(255, 130, 95, 0.1);
+  animation: sig-priority-critical 5.2s ease-in-out infinite;
+}
+
+@keyframes sig-priority-critical {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px rgba(255, 190, 160, 0.12), 0 0 14px rgba(255, 130, 95, 0.07);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(255, 215, 185, 0.22), 0 0 26px rgba(255, 150, 110, 0.12);
+  }
+}
+
+.app-shell[data-sig-priority="ambient"] {
+  --exec-signal-glow: 0.015;
+}
+
+.app-shell[data-sig-priority="monitored"] {
+  --exec-signal-glow: 0.035;
+}
+
+.app-shell[data-sig-priority="elevated"] {
+  --exec-signal-glow: 0.055;
+}
+
+.app-shell[data-sig-priority="dominant"] {
+  --exec-signal-glow: 0.1;
+}
+
+.app-shell[data-sig-priority="critical"] {
+  --exec-signal-glow: 0.13;
+}
+
+.app-shell[data-signal-tier="passive"] {
+  --exec-signal-glow: 0.02;
+}
+
+.app-shell[data-signal-tier="active"] {
+  --exec-signal-glow: 0.04;
+}
+
+.app-shell[data-signal-tier="elevated"] {
+  --exec-signal-glow: 0.06;
+}
+
+.app-shell[data-signal-tier="critical"] {
+  --exec-signal-glow: 0.09;
+}
+
+.app-shell[data-signal-tier="dominant"] {
+  --exec-signal-glow: 0.12;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell[data-cognitive-depth="memory"] .cog-atmos__haze,
+  .app-shell[data-cognitive-depth="memory"] .cog-spine__pulse {
+    animation: none !important;
+  }
+
+  .app-shell[data-exec-pulse] {
+    animation: none;
+  }
+
+  [data-sig-priority="critical"] {
+    animation: none !important;
+  }
+
+  .topo-map__orbit,
+  .topo-map__link,
+  .topo-map__node,
+  .exec-flow__txt {
+    animation: none !important;
+  }
+
+  .app-shell[data-cognitive-depth="analysis"] .topo-card {
+    animation: none !important;
+  }
+
+  .cog-atmos__pressure-glow {
+    animation: none !important;
+  }
+
+  .cog-atmos[data-entity-pulse] .cog-atmos__field {
+    animation: none !important;
+  }
+}
+
+/* Phase 3 — cognitive focus anchors (luxury restraint) */
+.app-shell[data-cognitive-depth="command"] .cmd-band__li[data-focus-row="action"] .cmd-band__v {
+  color: rgba(248, 250, 255, 0.98);
+  letter-spacing: 0.01em;
+  text-shadow: 0 0 24px rgba(190, 200, 235, 0.08);
+}
+
+.app-shell[data-cognitive-depth="operations"] .ops-floor__lanes {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 8px 8px 6px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.app-shell[data-cognitive-depth="analysis"] .topo-card {
+  animation: topo-card-exec-rhythm 32s ease-in-out infinite;
+}
+
+@keyframes topo-card-exec-rhythm {
+  0%,
+  100% {
+    opacity: 0.94;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.app-shell[data-cognitive-depth="memory"] .mem-arch {
+  filter: contrast(0.97) brightness(0.96);
+}
+
+.app-shell[data-cognitive-depth="simulation"] .sim-depth__then {
+  text-shadow: 0 0 18px rgba(255, 160, 90, 0.06);
+}
+
+/* Market weather — micro-shift atmosphere (no extra chrome) */
+.app-shell[data-market-weather="overheated"] .cog-atmos__haze {
+  opacity: 0.42 !important;
+}
+.app-shell[data-market-weather="calm"] .cog-atmos__haze {
+  opacity: 0.26 !important;
+}
+.app-shell[data-market-weather="fragmented"] .cog-atmos__field {
+  opacity: calc(var(--live-field-opacity, 0.04) * 1.15);
+}
+
+/* Phase 8 — weather 3.0: atmosphere micro-shift */
+.app-shell[data-market-weather-3="volatile"] .cog-atmos__pressure-glow,
+.app-shell[data-market-weather-3="unstable"] .cog-atmos__pressure-glow {
+  opacity: 0.38 !important;
+}
+.app-shell[data-market-weather-3="calm"] .cog-atmos__pressure-glow,
+.app-shell[data-market-weather-3="recovering"] .cog-atmos__pressure-glow {
+  opacity: 0.16 !important;
+}
+.app-shell[data-market-weather-3="compressed"] .cog-atmos__fog {
+  opacity: 0.22 !important;
+}
+
+/* Executive silence — expensive restraint */
+.app-shell[data-executive-silence-band="deep"] .cog-atmos__field {
+  opacity: calc(var(--live-field-opacity, 0.04) * 0.82);
+}
+.app-shell[data-executive-silence-band="deep"] .os-strip__organism {
+  letter-spacing: 0.07em;
+  color: rgba(165, 178, 208, 0.68);
+}
+.app-shell[data-executive-silence-band="mid"] .cog-atmos__veil {
+  opacity: 0.92;
+}
+
+/* Phase 7 — entity pulse: barely perceptible field drift (no gamer chrome) */
+.cog-atmos[data-entity-pulse] .cog-atmos__field {
+  animation: cog-entity-field-drift 140s ease-in-out infinite;
+}
+
+@keyframes cog-entity-field-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0.12%, -0.08%, 0);
+  }
+}
+
+[data-sig-tier="archived"] {
+  opacity: 0.38 !important;
+  filter: saturate(0.7) blur(0.2px);
+  font-style: italic;
+}
+
+@keyframes topo-map-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0.4%, -0.25%, 0);
+  }
+}
+
+.topo-map__orbit {
+  animation: topo-map-drift 90s ease-in-out infinite;
+}
+
+.topo-map__link {
+  animation: topo-map-drift 120s ease-in-out infinite reverse;
+}
+
+.topo-map__node {
+  animation: topo-map-drift 140s ease-in-out infinite;
+}
+
+@keyframes exec-flow-shimmer {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.exec-flow__txt {
+  animation: exec-flow-shimmer 22s ease-in-out infinite;
+}

@@ -1,0 +1,957 @@
+/* Глобальный когнитивный слой VOKRA — общая атмосфера и лента модулей */
+
+.cog-atmos {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cog-atmos__veil {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 90% 70% at 50% 0%, rgba(18, 22, 34, 0.45) 0%, transparent 55%);
+}
+
+.cog-atmos__haze {
+  position: absolute;
+  inset: 0;
+  opacity: 0.44;
+  background: radial-gradient(ellipse 80% 55% at 58% 42%, rgba(60, 78, 118, 0.16) 0%, transparent 60%);
+  filter: blur(42px);
+  animation: cog-atmos-haze var(--live-haze-sec, 90s) ease-in-out infinite;
+}
+
+.cog-atmos__field {
+  position: absolute;
+  inset: 0;
+  opacity: var(--live-field-opacity, 0.04);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.038) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.016) 1px, transparent 1px);
+  background-size: 100% 56px, 96px 100%;
+  mask-image: radial-gradient(ellipse 90% 75% at 50% 42%, black 20%, transparent 78%);
+}
+
+.cog-atmos__fog {
+  position: absolute;
+  inset: -5%;
+  opacity: 0.55;
+  background: radial-gradient(ellipse 70% 55% at 50% 100%, rgba(0, 0, 0, 0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 40% at 20% 30%, rgba(0, 0, 0, 0.35) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.cog-atmos__pressure-glow {
+  position: absolute;
+  inset: 0;
+  opacity: calc(0.26 + var(--live-organism-glow, 0.18) * 0.55);
+  background:
+    radial-gradient(ellipse 45% 35% at 72% 18%, rgba(90, 110, 160, 0.16) 0%, transparent 60%),
+    radial-gradient(ellipse 35% 30% at 12% 78%, rgba(70, 55, 90, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 65% 22% at 50% 100%, rgba(40, 50, 88, 0.14) 0%, transparent 55%);
+  mix-blend-mode: screen;
+  animation: cog-atmos-pressure 48s ease-in-out infinite;
+}
+
+@keyframes cog-atmos-pressure {
+  0%,
+  100% {
+    opacity: 0.32;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    opacity: 0.48;
+    transform: translate3d(-0.6%, 0.3%, 0) scale(1.02);
+  }
+}
+
+@keyframes cog-atmos-haze {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.38;
+  }
+  50% {
+    transform: translate3d(-0.8%, 0.4%, 0);
+    opacity: 0.50;
+  }
+}
+
+.cog-spine {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--sidebar-w) - 1px);
+  width: 2px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.cog-spine__line {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(130, 150, 195, 0.09) 15%,
+    rgba(100, 120, 165, 0.22) 50%,
+    rgba(130, 150, 195, 0.08) 85%,
+    transparent 100%
+  );
+}
+
+.cog-spine__pulse {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 22%;
+  top: 35%;
+  background: linear-gradient(180deg, transparent, rgba(210, 225, 248, 0.14), transparent);
+  animation: cog-spine-pulse var(--live-spine-pulse-sec, 14s) ease-in-out infinite;
+  opacity: 0.75;
+}
+
+@keyframes cog-spine-pulse {
+  0%,
+  100% {
+    transform: translateY(-30%);
+    opacity: 0.15;
+  }
+  50% {
+    transform: translateY(30%);
+    opacity: 0.72;
+  }
+}
+
+.cog-ribbon {
+  /* Open strip — no box, atmospheric data layer */
+  position: relative;
+  z-index: 3;
+  margin: 0 0 16px;
+  padding: 10px 0 12px;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--line-faint, rgba(255, 255, 255, 0.038));
+  background: transparent;
+  box-shadow: none;
+}
+
+.cog-ribbon--signals {
+  margin-bottom: 0;
+  padding: 8px 0 10px;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.cog-ribbon__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  align-items: center;
+}
+
+.cog-ribbon__chip {
+  /* Minimal chip — pure text indicator, barely any chrome */
+  font-size: 0.52rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(155, 170, 205, 0.65);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+}
+
+.cog-ribbon__chip--act {
+  color: rgba(210, 220, 245, 0.92);
+  border-color: rgba(130, 155, 210, 0.2);
+}
+
+.cog-ribbon__chip--dna {
+  border-color: rgba(160, 140, 200, 0.15);
+}
+
+.cog-ribbon__chip--warn {
+  border-color: rgba(220, 180, 140, 0.28);
+  color: rgba(235, 210, 190, 0.88);
+}
+
+.cog-ribbon__signals {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cog-ribbon__in,
+.cog-ribbon__out,
+.cog-ribbon__net {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: rgba(195, 205, 228, 0.82);
+}
+
+.cog-ribbon__k {
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(140, 155, 188, 0.55);
+  margin-right: 6px;
+}
+
+.cog-ribbon__trace {
+  margin-top: 10px;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.cog-ribbon__trace-fill {
+  display: block;
+  height: 100%;
+  width: 35%;
+  background: linear-gradient(90deg, transparent, rgba(140, 165, 210, 0.35), transparent);
+  animation: cog-ribbon-trace 22s ease-in-out infinite;
+}
+
+@keyframes cog-ribbon-trace {
+  0% {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(320%);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cog-atmos__haze,
+  .cog-atmos__pressure-glow,
+  .cog-spine__pulse,
+  .cog-ribbon__trace-fill {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .cog-spine {
+    display: none;
+  }
+}
+
+/* Контент поверх атмосферы (атмосфера z-index: 0) */
+.main-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.main-stage {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ——— Глобальная сеть сигналов (колонка main) ——— */
+.cog-signal-net {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  pointer-events: none;
+  opacity: 0.2;
+  mix-blend-mode: soft-light;
+}
+
+.cog-signal-net__ghost {
+  stroke: rgba(90, 110, 150, 0.08);
+  stroke-width: 0.12;
+}
+
+.cog-signal-net__path {
+  stroke-width: 0.16;
+  stroke-linecap: round;
+}
+
+.cog-signal-net__pulse {
+  filter: blur(0.3px);
+}
+
+/* ——— Поток приоритетов (нервная система) ——— */
+.cog-priority {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  padding: 10px 14px 12px;
+  border-bottom: 1px solid var(--line-faint, rgba(255, 255, 255, 0.038));
+  background: transparent;
+}
+
+.cog-priority__label {
+  font-size: 0.5rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(140, 155, 188, 0.42);
+  margin-bottom: 6px;
+}
+
+.cog-priority__row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px 12px;
+  align-items: start;
+}
+
+.cog-priority--compact .cog-priority__row {
+  grid-template-columns: 2fr 1.2fr 0.7fr 0.7fr;
+}
+
+.cog-priority__cell {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cog-priority__k {
+  font-size: 0.48rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(130, 145, 175, 0.45);
+}
+
+.cog-priority__v {
+  font-size: 0.62rem;
+  line-height: 1.35;
+  color: rgba(195, 205, 225, 0.78);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cog-priority__metric {
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(220, 225, 238, 0.88);
+  letter-spacing: 0.04em;
+}
+
+.cog-priority__memory {
+  margin: 8px 0 0;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.58rem;
+  line-height: 1.4;
+  color: rgba(150, 165, 195, 0.38);
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+
+/* ——— Initiative Engine · автономный поток ——— */
+.cog-initiative {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  padding: 10px 14px 12px;
+  border-bottom: 1px solid var(--line-faint, rgba(255, 255, 255, 0.038));
+  background: transparent;
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.cog-initiative--elevated {
+  box-shadow: inset 0 -1px 0 rgba(123, 143, 255, 0.12);
+}
+
+.cog-initiative--critical {
+  box-shadow:
+    inset 0 -1px 0 rgba(200, 120, 100, 0.22),
+    inset 0 0 48px rgba(120, 60, 40, 0.06);
+}
+
+.cog-initiative__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.cog-initiative__label {
+  font-size: 0.52rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(150, 165, 200, 0.55);
+}
+
+.cog-initiative__badge {
+  font-size: 0.48rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(130, 145, 180, 0.42);
+  font-variant-numeric: tabular-nums;
+}
+
+.cog-initiative__track {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+
+.cog-initiative__track::-webkit-scrollbar {
+  height: 3px;
+}
+
+.cog-initiative__track::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+}
+
+.cog-initiative__card {
+  /* Edge-ruled card — left accent line, open interior */
+  flex: 0 0 min(300px, 78vw);
+  scroll-snap-align: start;
+  padding: 10px 14px 12px 14px;
+  border-radius: 0 8px 8px 0;
+  border: none;
+  border-left: 2px solid var(--line-soft, rgba(255, 255, 255, 0.07));
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.cog-initiative__card--critical {
+  border-left-color: rgba(200, 130, 110, 0.42);
+  background: rgba(180, 80, 60, 0.03);
+}
+
+.cog-initiative__card--high_leverage {
+  border-left-color: rgba(123, 143, 255, 0.38);
+  background: rgba(123, 143, 255, 0.025);
+}
+
+.cog-initiative__card--observe {
+  border-left-color: rgba(100, 140, 200, 0.28);
+  background: rgba(100, 140, 200, 0.018);
+}
+
+.cog-initiative__open-cb {
+  /* Text-forward action — no box, just clear intent */
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  border-bottom: 1px solid rgba(120, 150, 220, 0.22);
+  background: transparent;
+  color: rgba(165, 185, 235, 0.80);
+  font-size: 0.60rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  padding: 2px 0;
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.cog-initiative__open-cb:hover {
+  border-color: rgba(123, 143, 255, 0.55);
+  color: rgba(195, 210, 255, 0.96);
+}
+
+.cog-initiative__card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.cog-initiative__pri {
+  font-size: 0.48rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(160, 175, 210, 0.55);
+}
+
+.cog-initiative__pri--critical {
+  color: rgba(220, 170, 150, 0.85);
+}
+
+.cog-initiative__pri--high_leverage {
+  color: rgba(180, 195, 235, 0.78);
+}
+
+.cog-initiative__pri--strategic {
+  color: rgba(165, 180, 215, 0.65);
+}
+
+.cog-initiative__pri--low_priority,
+.cog-initiative__pri--observe {
+  color: rgba(130, 145, 175, 0.45);
+}
+
+.cog-initiative__dismiss {
+  border: none;
+  background: transparent;
+  color: rgba(150, 160, 185, 0.35);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.cog-initiative__dismiss:hover {
+  color: rgba(220, 225, 238, 0.55);
+}
+
+.cog-initiative__headline {
+  margin: 0 0 5px;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: rgba(210, 218, 235, 0.88);
+  font-weight: 500;
+}
+
+.cog-initiative__body {
+  margin: 0;
+  font-size: 0.58rem;
+  line-height: 1.45;
+  color: rgba(145, 158, 190, 0.52);
+}
+
+.app-shell[data-init-urgency="elevated"] {
+  box-shadow: inset 0 0 100px rgba(80, 100, 160, 0.04);
+}
+
+.app-shell[data-init-urgency="critical"] {
+  box-shadow: inset 0 0 120px rgba(140, 70, 50, 0.05);
+}
+
+.cog-atmos[data-cog-init-urgency="elevated"] .cog-atmos__haze {
+  opacity: 0.4;
+}
+
+.cog-atmos[data-cog-init-urgency="critical"] .cog-atmos__haze {
+  opacity: 0.48;
+}
+
+.cog-atmos[data-cog-init-urgency="critical"] .cog-atmos__field {
+  opacity: 0.055;
+}
+
+.cog-spine[data-cog-init-urgency="critical"] .cog-spine__pulse {
+  animation-duration: 10s;
+  opacity: 0.88;
+}
+
+.cog-signal-net--urgency-elevated {
+  opacity: 0.92;
+}
+
+.cog-signal-net--urgency-critical {
+  opacity: 1;
+}
+
+.cog-signal-net--urgency-critical .cog-signal-net__path {
+  stroke-width: 0.2;
+}
+
+.main-wrap .top-bar,
+.main-wrap .os-strip,
+.main-wrap .os-shell-details,
+.main-wrap .os-details,
+.main-wrap .cog-initiative,
+.main-wrap .cog-deck,
+.main-wrap main.main-stage {
+  position: relative;
+  z-index: 1;
+}
+
+/* ——— Двигатель решений (исполнительный слой) ——— */
+.cog-deck {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 12px 14px 16px;
+  border-bottom: 1px solid var(--line-faint, rgba(255, 255, 255, 0.038));
+  background: transparent;
+}
+
+.cog-deck__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.cog-deck__title {
+  margin: 0;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(200, 210, 232, 0.72);
+}
+
+.cog-deck__badge {
+  font-size: 0.48rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(130, 148, 180, 0.38);
+}
+
+.cog-deck__reason-block {
+  /* Remove inner box — let the text breathe */
+  margin-bottom: var(--s4, 16px);
+  padding: 0 0 var(--s4, 16px);
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--line-faint, rgba(255, 255, 255, 0.038));
+  background: transparent;
+}
+
+.cog-deck__reason {
+  margin: 0 0 8px;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: rgba(205, 215, 235, 0.88);
+}
+
+.cog-deck__memory {
+  margin: 0;
+  font-size: 0.6rem;
+  line-height: 1.45;
+  color: rgba(145, 160, 190, 0.42);
+  letter-spacing: 0.03em;
+}
+
+.cog-deck__engines {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.cog-deck__engine {
+  /* Open column — border-right separation, no box */
+  min-width: 0;
+  padding: 0 var(--s3, 12px) 0 0;
+  border-radius: 0;
+  border: none;
+  border-right: 1px solid var(--line-faint, rgba(255, 255, 255, 0.038));
+  background: transparent;
+}
+.cog-deck__engine:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+.cog-deck__engine-k {
+  margin: 0 0 6px;
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(155, 172, 205, 0.45);
+}
+
+.cog-deck__engine-lead {
+  margin: 0 0 6px;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  font-weight: 500;
+  color: rgba(220, 226, 240, 0.9);
+}
+
+.cog-deck__engine-txt {
+  margin: 0 0 4px;
+  font-size: 0.6rem;
+  line-height: 1.4;
+  color: rgba(175, 188, 215, 0.68);
+}
+
+.cog-deck__engine-action {
+  margin: 6px 0 0;
+  font-size: 0.58rem;
+  line-height: 1.35;
+  color: rgba(190, 200, 225, 0.55);
+  letter-spacing: 0.04em;
+}
+
+.cog-deck__risk-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cog-deck__risk-list li {
+  display: grid;
+  grid-template-columns: 72px 1fr 28px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cog-deck__risk-n {
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(140, 155, 185, 0.45);
+}
+
+.cog-deck__risk-bar {
+  display: block;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.cog-deck__risk-bar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: calc(var(--cog-r, 40) * 1%);
+  max-width: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(95, 118, 158, 0.25), rgba(195, 205, 228, 0.32));
+}
+
+.cog-deck__risk-v {
+  font-size: 0.55rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(200, 210, 228, 0.55);
+  text-align: right;
+}
+
+.cog-deck__rank {
+  /* Rule-separated block — no box */
+  margin-bottom: var(--s3, 12px);
+  padding: var(--s3, 12px) 0 0;
+  border-radius: 0;
+  border: none;
+  border-top: 1px solid var(--line-faint, rgba(255, 255, 255, 0.038));
+  background: transparent;
+}
+
+.cog-deck__rank-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.cog-deck__rank-title {
+  font-size: 0.5rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(145, 160, 190, 0.42);
+}
+
+.cog-deck__rank-op {
+  font-size: 0.58rem;
+  color: rgba(185, 198, 222, 0.65);
+  text-align: right;
+}
+
+.cog-deck__rank-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px 10px;
+}
+
+.cog-deck__rank-cell {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cog-deck__rank-l {
+  font-size: 0.48rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(130, 145, 175, 0.4);
+}
+
+.cog-deck__rank-track {
+  display: block;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.cog-deck__rank-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(100, 125, 168, 0.2), rgba(210, 218, 238, 0.28));
+  transition: width 1.2s ease;
+}
+
+.cog-deck__rank-num {
+  font-size: 0.52rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(175, 190, 215, 0.5);
+}
+
+.cog-deck__launch {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(165deg, rgba(14, 16, 26, 0.75) 0%, rgba(6, 7, 12, 0.65) 100%);
+}
+
+.cog-deck__launch-k {
+  margin: 0 0 4px;
+  font-size: 0.5rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(160, 175, 205, 0.48);
+}
+
+.cog-deck__launch-type {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(225, 230, 245, 0.92);
+}
+
+.cog-deck__launch-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+.cog-deck__launch-span {
+  grid-column: 1 / -1;
+}
+
+.cog-deck__launch-subl {
+  display: block;
+  font-size: 0.48rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(130, 145, 175, 0.4);
+  margin-bottom: 4px;
+}
+
+.cog-deck__launch-p {
+  margin: 0;
+  font-size: 0.64rem;
+  line-height: 1.45;
+  color: rgba(190, 200, 222, 0.78);
+}
+
+@media (max-width: 1100px) {
+  .cog-deck__engines {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cog-deck__rank-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .cog-deck__engines {
+    grid-template-columns: 1fr;
+  }
+  .cog-deck__launch-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1100px) {
+  .cog-priority__row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ——— Адаптивное настроение ОС (режим рынка) ——— */
+.app-shell[data-cog-regime="opportunity"] .cog-atmos__haze {
+  opacity: 0.4;
+  filter: blur(40px);
+}
+
+.app-shell[data-cog-regime="saturation"] .cog-atmos__haze {
+  opacity: 0.26;
+  filter: blur(48px);
+  background: radial-gradient(ellipse 78% 52% at 55% 40%, rgba(55, 72, 105, 0.1) 0%, transparent 62%);
+}
+
+.app-shell[data-cog-regime="production_load"] .cog-atmos__veil {
+  background: radial-gradient(ellipse 100% 70% at 50% 0%, rgba(14, 16, 24, 0.55) 0%, transparent 55%);
+}
+
+.app-shell[data-cog-regime="production_load"] .cog-spine__pulse {
+  animation-duration: 9.5s;
+  opacity: 0.85;
+}
+
+.cog-atmos[data-cog-atmos-regime="opportunity"] .cog-atmos__field {
+  opacity: calc(var(--live-field-opacity, 0.04) * 1.25);
+}
+
+.cog-atmos[data-cog-atmos-regime="saturation"] .cog-atmos__field {
+  opacity: calc(var(--live-field-opacity, 0.04) * 0.72);
+}
+
+/* Live executive regime — subtle motion / density shifts (not decorative) */
+.app-shell[data-live-profile="recovery"] .cog-atmos__haze {
+  animation-duration: calc(var(--live-haze-sec, 90s) * 1.12);
+}
+
+.app-shell[data-live-profile="expansion"] .cog-atmos__haze {
+  animation-duration: calc(var(--live-haze-sec, 90s) * 0.9);
+}
+
+.app-shell[data-live-profile="premium_defense"] .cog-atmos__field {
+  opacity: calc(var(--live-field-opacity, 0.04) * 0.92);
+}
+
+.app-shell[data-live-profile="observation"] .cog-spine__pulse {
+  animation-duration: calc(var(--live-spine-pulse-sec, 14s) * 1.08);
+}
+
+.app-shell[data-live-profile="silent_accumulation"] .cog-atmos__haze {
+  opacity: 0.3;
+}
+
+.cog-ribbon__cause {
+  margin: 0 0 6px;
+  font-size: 0.64rem;
+  line-height: 1.4;
+  color: rgba(175, 190, 218, 0.72);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cog-signal-net__pulse {
+    display: none;
+  }
+  .cog-deck__rank-fill {
+    transition: none;
+  }
+}

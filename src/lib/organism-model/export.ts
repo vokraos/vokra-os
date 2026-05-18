@@ -1,0 +1,72 @@
+import type { OrganismState } from "./types";
+
+export function organismModelToJson(state: OrganismState): string {
+  return JSON.stringify(state, null, 2);
+}
+
+export function organismModelToMarkdown(state: OrganismState): string {
+  const h = state.systemHealth;
+  const exp = state.expansionCapacity;
+  const lines: string[] = [
+    `# Модель организма · VOKRA OS`,
+    ``,
+    `Пульс #${state.pulseGeneration} · ${new Date(state.generatedAt).toISOString()}`,
+    ``,
+    `## 1. Состояние системы`,
+    state.systemSummaryRu,
+    ``,
+    `## Сводка здоровья (0–100)`,
+    `**Итог:** ${h.overall}`,
+    ...h.axes.map((a) => `- **${a.labelRu}** (${a.axis}): ${a.score} — _${a.pulseRu}_`),
+    ``,
+    `## 2. Карта нагрузки`,
+    ...state.loadMapRu.map((z) => `- **${z.zoneRu}** ${z.load}% — ${z.noteRu}`),
+    `**Operational stress:** ${state.operationalStress.index}% — ${state.operationalStress.summaryRu}`,
+    ``,
+    `## 3. Потоки ресурсов`,
+    ...state.resourceFlows.map((f) => `- ${f.channelRu}: **${f.share}%** — ${f.stateRu}`),
+    `**Внимание:** ${state.attentionAllocation.summaryRu}`,
+    ``,
+    `## 4. Энергия бренда`,
+    state.brandEnergyRu,
+    `**Strategic energy reserve:** ${state.strategicEnergy.reserve}%`,
+    state.strategicEnergy.spendRateRu,
+    state.strategicEnergy.recoveryWindowRu,
+    ``,
+    `## 5. Риск перегрева`,
+    `${state.overheatingRisk.index}% — ${state.overheatingRisk.captionRu}`,
+    ...state.overheatingRisk.factorsRu.map((x) => `- ${x}`),
+    ``,
+    `## 6. Устойчивость роста`,
+    `${state.growthResilience}% (модель устойчивости под текущим ростом).`,
+    state.growthPressure.vectorRu,
+    state.growthPressure.safeGrowthRu,
+    ``,
+    `## 7. Исполнительная усталость`,
+    `${state.executionFatigue.index}%`,
+    ...state.executionFatigue.sourcesRu.map((x) => `- ${x}`),
+    state.executionFatigue.reliefRu,
+    ``,
+    `## 8. Зоны потерь`,
+    ...state.lossZonesRu.map((x) => `- ${x}`),
+    ``,
+    `## 9. Потенциал расширения`,
+    `Индекс: ${exp.index}% · SKU scale ${exp.skuScale}% · Категории ${exp.categoryExpand}% · FBO ${exp.fboIncrease}% · Капсулы ${exp.capsules}% · Новые ниши ${exp.newNiches}%`,
+    exp.verdictRu,
+    ``,
+    `## Перегруз / недозагруз`,
+    `**Overload:**`,
+    ...state.overloadSignalsRu.map((x) => `- ${x}`),
+    `**Underutilization:**`,
+    ...state.underutilizationRu.map((x) => `- ${x}`),
+    ``,
+    `## 10. Общая стабильность`,
+    `${state.stabilityIndex.value}% — ${state.stabilityIndex.interpretationRu}`,
+    state.stabilityNarrativeRu,
+    state.executiveAlignmentRu,
+    ``,
+    `## Интеграции`,
+    ...state.integrationTies.map((t) => `- **${t.layerRu}:** ${t.tieRu}`),
+  ];
+  return lines.join("\n");
+}

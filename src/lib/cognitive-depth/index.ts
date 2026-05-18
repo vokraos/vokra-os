@@ -1,0 +1,100 @@
+export type {
+  CognitiveDepthMode,
+  DepthSurface,
+  DashboardSlot,
+  MissionSlot,
+  OrchSlot,
+  SectionRole,
+} from "./types";
+export {
+  isCommandDepthMode,
+  allowsDeepStrategicLayer,
+  isDashboardSlotVisible,
+  dashboardSlotRole,
+  isMissionSlotVisible,
+  missionSlotRole,
+  isOrchSlotVisible,
+  orchSlotRole,
+} from "./policy";
+export { clipDepthText } from "./compression";
+export { CognitiveDepthProvider, useCognitiveDepth } from "./CognitiveDepthProvider";
+export type { MicroSig, EmpireHeroCard, HeroRole, EmpireWave, LaunchWaveState } from "./sku-empire";
+export {
+  empireHeroTriad,
+  empireLaunchWaves,
+  empireScaleNumbers,
+  empireMicroSignals,
+  empireMarketPressureSig,
+  empireProductionSigs,
+  empireCorridorWarfareKey,
+  empireCorridorWarfareSig,
+  empireMemoryWarfare,
+} from "./sku-empire";
+export type {
+  ExecPulse,
+  ExecutiveSignalPriority,
+  SignalTier,
+  TopologyCorridor,
+  TopologyRelation,
+  CadenceLane,
+  SkuLifecycle,
+  ExecLaneId,
+  ExecLaneRow,
+} from "./market-war-os";
+export {
+  executivePulseFromSeed,
+  dominantSignalTier,
+  executiveSignalPriorityFromTier,
+  signalTierForIndex,
+  buildTopologyCorridors,
+  topologyRelations,
+  skuGravityLines,
+  launchCadenceState,
+  warMarketplaceSig,
+  warProductionSigs,
+  marketMemoryScars,
+  tensionNarrativeVars,
+  marketSeasonId,
+  marketSeasonMessageKey,
+  seasonNarrativeSig,
+  skuLifecycleState,
+  skuLifecycleLineKey,
+  CAUSAL_FLOW_KEYS,
+  causalFlowVars,
+  executionLanesFull,
+  laneBlockNarrative,
+  memoryCampaignMarkers,
+} from "./market-war-os";
+export type { MarketWeather, MarketWeather3, OrganismShellMultipliers, SimProjection, Weather3ShellScalars } from "./strategic-organism";
+export {
+  marketWeatherFromSignals,
+  marketWeatherId,
+  marketWeather3FromSignals,
+  weather3ShellScalars,
+  globalMarketPulseMessageKey,
+  globalMarketPulseVars,
+  organismShellMultipliers,
+  corridorGravityNarratives,
+  tradeOffConsequence,
+  executiveTimeAmbient,
+  skuEcologyMicroLines,
+  executionPressureLive,
+  memoryArchiveDepth,
+  simulationChamberProjections,
+  ambientLatticeWhisperVars,
+  strategicEnergyFlowLines,
+  marketFieldTheoryLines,
+  marketTerrainNarratives,
+  heroSkuDramaMessageKey,
+  consequenceAtmosphere,
+  operationsOrchestrationFloor,
+  memoryStrategicEchoes,
+  marketplaceWeather2Sig,
+} from "./strategic-organism";
+export {
+  strategicWarRoomLines,
+  ecosystemHierarchyLines,
+  strategicMemoryClassKey,
+  entityMicroVars,
+} from "./entity-consciousness";
+export type { WarRoomId } from "./entity-consciousness";

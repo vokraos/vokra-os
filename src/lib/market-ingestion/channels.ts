@@ -1,0 +1,30 @@
+import type { IngestionChannelDescriptor } from "./types";
+
+/** Prepared channel surface — future adapters attach here. */
+export const INGESTION_CHANNELS: readonly IngestionChannelDescriptor[] = [
+  { id: "wb.cards", platform: "wb", category: "listing", labelKey: "ingest.channel.wb.cards", hook: "wb.cards" },
+  { id: "wb.ads", platform: "wb", category: "ads", labelKey: "ingest.channel.wb.ads", hook: "wb.ads" },
+  { id: "wb.seo", platform: "wb", category: "seo", labelKey: "ingest.channel.wb.seo", hook: "wb.seo" },
+  { id: "wb.ctr", platform: "wb", category: "performance", labelKey: "ingest.channel.wb.ctr", hook: "wb.ctr" },
+  { id: "wb.cr", platform: "wb", category: "performance", labelKey: "ingest.channel.wb.cr", hook: "wb.cr" },
+  { id: "wb.buyout", platform: "wb", category: "performance", labelKey: "ingest.channel.wb.buyout", hook: "wb.buyout" },
+  { id: "wb.search", platform: "wb", category: "search", labelKey: "ingest.channel.wb.search", hook: "wb.search" },
+  { id: "wb.stock", platform: "wb", category: "inventory", labelKey: "ingest.channel.wb.stock", hook: "wb.stock" },
+  { id: "wb.fbo_fbs", platform: "wb", category: "fulfillment", labelKey: "ingest.channel.wb.fbo_fbs", hook: "wb.fbo_fbs" },
+  { id: "wb.regions", platform: "wb", category: "geo", labelKey: "ingest.channel.wb.regions", hook: "wb.regions" },
+  { id: "ozon.cards", platform: "ozon", category: "listing", labelKey: "ingest.channel.ozon.cards", hook: "ozon.cards" },
+  { id: "ozon.ads", platform: "ozon", category: "ads", labelKey: "ingest.channel.ozon.ads", hook: "ozon.ads" },
+  { id: "ozon.search", platform: "ozon", category: "search", labelKey: "ingest.channel.ozon.search", hook: "ozon.search" },
+  { id: "ozon.stock", platform: "ozon", category: "inventory", labelKey: "ingest.channel.ozon.stock", hook: "ozon.stock" },
+  { id: "ozon.revenue", platform: "ozon", category: "finance", labelKey: "ingest.channel.ozon.revenue", hook: "ozon.revenue" },
+  { id: "ozon.indexing", platform: "ozon", category: "visibility", labelKey: "ingest.channel.ozon.indexing", hook: "ozon.indexing" },
+  { id: "prod.dtf_queues", platform: "production", category: "dtf", labelKey: "ingest.channel.prod.dtf_queues", hook: "prod.dtf_queues" },
+  { id: "prod.packaging", platform: "production", category: "packaging", labelKey: "ingest.channel.prod.packaging", hook: "prod.packaging" },
+  { id: "prod.blanks", platform: "production", category: "material", labelKey: "ingest.channel.prod.blanks", hook: "prod.blanks" },
+  { id: "prod.print_load", platform: "production", category: "capacity", labelKey: "ingest.channel.prod.print_load", hook: "prod.print_load" },
+  { id: "prod.shift_load", platform: "production", category: "capacity", labelKey: "ingest.channel.prod.shift_load", hook: "prod.shift_load" },
+  { id: "content.hero_visuals", platform: "content", category: "visual", labelKey: "ingest.channel.content.hero_visuals", hook: "content.hero_visuals" },
+  { id: "content.refreshes", platform: "content", category: "cadence", labelKey: "ingest.channel.content.refreshes", hook: "content.refreshes" },
+  { id: "content.reels", platform: "content", category: "social", labelKey: "ingest.channel.content.reels", hook: "content.reels" },
+  { id: "content.rich_content", platform: "content", category: "listing", labelKey: "ingest.channel.content.rich_content", hook: "content.rich_content" },
+] as const;
