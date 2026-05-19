@@ -7,59 +7,31 @@ import { navMessageKey } from "../../lib/i18n/navLabels";
 import { useCognitiveOs } from "../../lib/cognitive-os";
 import { useExecutionOrchestrator } from "../../lib/execution-orchestrator";
 import { useLiveState } from "../../lib/live-state";
-import { DAILY_FLOW_STEPS, useDailyOperating } from "../../lib/daily-operating";
+import { DAILY_FLOW_STEPS, useDailyOperating, useDailyConsoleLines } from "../../lib/daily-operating";
 import { useExecutiveDecisionBoard } from "../../lib/executive-decision-compression";
-import { ENTITY_SNAPSHOT_EVENT, deriveSnapshotIntelligence, formatSnapshotTopActionLine, getActiveEntitySnapshot, selectEntitySnapshotBannerCounts } from "../../lib/entity-snapshot";
-import { ASSORTMENT_ACTIONS_EVENT, getAssortmentChecklistDigestLine, getAssortmentDailyDigest, getAssortmentExecutiveReportDigestLine, getAssortmentLearningDigestLine, getAssortmentRepeatedBlockerDigestLine, getAssortmentReviewCarryDigestLine } from "../../lib/assortment-actions";
-import { HERO_COMMAND_EVENT, getHeroCommandDailyDigestLine } from "../../lib/hero-command";
-import { getHeroExecutionDailyDigestLine } from "../../lib/hero-assortment-bridge";
-import { getCollectionExecutionDailyDigestLine } from "../../lib/collection-assortment-bridge";
-import { getLaunchExecutionDailyDigestLine, LAUNCH_OPS_EVENT } from "../../lib/launch-ops";
-import { getFounderBriefDailySummary, getFounderBriefDailySummaryFromCache, FOUNDER_BRIEF_EVENT } from "../../lib/founder-brief";
-import { getEconomicPressureDailyLine, ECONOMIC_PRESSURE_EVENT } from "../../lib/economic-pressure";
-import { formatGuardrailDailyLine, loadEconomicGuardrails } from "../../lib/economic-guardrails";
-import { getAdvertisingPressureDailyLine, AD_PRESSURE_EVENT } from "../../lib/ad-pressure";
-import {
-  buildOsHealthAuditReport,
-  formatOsHealthAuditDailyLine,
-  OS_HEALTH_AUDIT_EVENT,
-} from "../../lib/os-health-audit";
-import {
-  buildGuidedSetupPlan,
-  formatGuidedSetupDailyLine,
-  GUIDED_SETUP_EVENT,
-} from "../../lib/guided-setup";
-import {
-  buildOperatorBrief,
-  formatOperatorModeDailyLine,
-  peekOperatorBriefSession,
-  OPERATOR_BRIEF_EVENT,
-} from "../../lib/operator-brief";
-import {
-  formatExecutionFeedbackDailyLine,
-  EXECUTION_FEEDBACK_EVENT,
-} from "../../lib/execution-feedback";
-import {
-  buildControlTowerSnapshot,
-  formatControlTowerDailyLine,
-  CONTROL_TOWER_EVENT,
-} from "../../lib/strategic-control-tower";
-import {
-  buildPrimaryMarketTimingReport,
-  formatMarketTimingDailyLine,
-  MARKET_TIMING_EVENT,
-} from "../../lib/market-timing";
-import { buildPrimaryCorridorStrategyReport, formatCorridorStrategyDailyLine, CORRIDOR_STRATEGY_EVENT } from "../../lib/corridor-strategy";
-import { getFboFbsDecisionDailyLine, FBO_FBS_DECISION_EVENT } from "../../lib/fbo-fbs-decision";
-import { getScalingSafetyDailyLine, SCALING_SAFETY_EVENT } from "../../lib/scaling-safety";
-import { getProductionPressureDailyLine, getProductionPressureDailyLineCached, PRODUCTION_PRESSURE_EVENT } from "../../lib/production-pressure";
-import { getDailyWarRoomDailyLine, getDailyWarRoomDailyLineCached, DAILY_WAR_ROOM_EVENT } from "../../lib/daily-war-room";
-import { getMorningFlowDailyLine, MORNING_FLOW_EVENT } from "../../lib/morning-operating-flow";
-import { getEveningCloseDailyLine, EVENING_CLOSE_EVENT } from "../../lib/evening-close";
-import { getPricePressureDailyLine, PRICE_POSITIONING_EVENT } from "../../lib/price-positioning";
-import { getUnitEconomicsDailyLine, UNIT_ECONOMICS_EVENT } from "../../lib/unit-economics";
+import { ENTITY_SNAPSHOT_EVENT } from "../../lib/entity-snapshot";
+import { ASSORTMENT_ACTIONS_EVENT } from "../../lib/assortment-actions";
+import { HERO_COMMAND_EVENT } from "../../lib/hero-command";
+import { LAUNCH_OPS_EVENT } from "../../lib/launch-ops";
+import { FOUNDER_BRIEF_EVENT } from "../../lib/founder-brief";
+import { ECONOMIC_PRESSURE_EVENT } from "../../lib/economic-pressure";
+import { AD_PRESSURE_EVENT } from "../../lib/ad-pressure";
+import { OS_HEALTH_AUDIT_EVENT } from "../../lib/os-health-audit";
+import { GUIDED_SETUP_EVENT } from "../../lib/guided-setup";
+import { OPERATOR_BRIEF_EVENT } from "../../lib/operator-brief";
+import { EXECUTION_FEEDBACK_EVENT } from "../../lib/execution-feedback";
+import { CONTROL_TOWER_EVENT } from "../../lib/strategic-control-tower";
+import { MARKET_TIMING_EVENT } from "../../lib/market-timing";
+import { CORRIDOR_STRATEGY_EVENT } from "../../lib/corridor-strategy";
+import { FBO_FBS_DECISION_EVENT } from "../../lib/fbo-fbs-decision";
+import { SCALING_SAFETY_EVENT } from "../../lib/scaling-safety";
+import { PRODUCTION_PRESSURE_EVENT } from "../../lib/production-pressure";
+import { DAILY_WAR_ROOM_EVENT } from "../../lib/daily-war-room";
+import { MORNING_FLOW_EVENT } from "../../lib/morning-operating-flow";
+import { EVENING_CLOSE_EVENT } from "../../lib/evening-close";
+import { PRICE_POSITIONING_EVENT } from "../../lib/price-positioning";
+import { UNIT_ECONOMICS_EVENT } from "../../lib/unit-economics";
 import { useSafeMode } from "../../hooks/useSafeMode";
-import { isCommandCompositionRestricted, isSafeModeFeatureDisabled } from "../../lib/safe-mode";
 import { useCleanDayMode, cleanDayHiddenSet } from "../../lib/clean-day-mode";
 
 type Props = { active: NavId; onNavigate: (id: NavId) => void };
@@ -188,155 +160,56 @@ export function DailyOperatingConsole({ active, onNavigate }: Props) {
     };
   }, []);
 
-  const economicPressureLine = useMemo(
-    () => getEconomicPressureDailyLine(t),
-    [esTick, aaTick, hcTick, fbTick, t],
+  const consoleTicks = useMemo(
+    () => ({
+      es: esTick,
+      aa: aaTick,
+      hc: hcTick,
+      fb: fbTick,
+      adp: adpTick,
+      ssf: ssfTick,
+      ppr: pprTick,
+      ffd: ffdTick,
+      cst: cstTick,
+      mtm: mtmTick,
+      sct: sctTick,
+      oha: ohaTick,
+      gsp: gspTick,
+      opm: opmTick,
+      efb: efbTick,
+      dwr: dwrTick,
+      mflow: mflowTick,
+      eclose: ecloseTick,
+    }),
+    [
+      esTick,
+      aaTick,
+      hcTick,
+      fbTick,
+      adpTick,
+      ssfTick,
+      pprTick,
+      ffdTick,
+      cstTick,
+      mtmTick,
+      sctTick,
+      ohaTick,
+      gspTick,
+      opmTick,
+      efbTick,
+      dwrTick,
+      mflowTick,
+      ecloseTick,
+    ],
   );
 
-  const unitEconomicsLine = useMemo(
-    () => getUnitEconomicsDailyLine(t),
-    [esTick, aaTick, hcTick, fbTick, t],
+  const { merged: consoleLines, deferred: deferredLines } = useDailyConsoleLines(
+    consoleTicks,
+    t,
+    locale,
+    safeEnabled,
+    safeDisabledKey,
   );
-
-  const guardrailLine = useMemo(
-    () => formatGuardrailDailyLine(loadEconomicGuardrails(), t),
-    [esTick, aaTick, hcTick, fbTick, t],
-  );
-
-  const pricePressureLine = useMemo(
-    () => getPricePressureDailyLine(t),
-    [esTick, aaTick, hcTick, fbTick, t],
-  );
-
-  const adPressureLine = useMemo(() => getAdvertisingPressureDailyLine(t), [adpTick, esTick, aaTick, hcTick, fbTick, t]);
-
-  const scalingSafetyLine = useMemo(() => getScalingSafetyDailyLine(t), [ssfTick, adpTick, esTick, aaTick, hcTick, fbTick, t]);
-
-  const productionPressureLine = useMemo(() => {
-    if (isSafeModeFeatureDisabled("production_composition")) {
-      return getProductionPressureDailyLineCached(t);
-    }
-    return getProductionPressureDailyLine(t);
-  }, [pprTick, ssfTick, adpTick, esTick, aaTick, hcTick, fbTick, efbTick, t, safeEnabled, safeDisabledKey]);
-
-  const fboFbsDecisionLine = useMemo(
-    () => getFboFbsDecisionDailyLine(t),
-    [ffdTick, ssfTick, adpTick, esTick, aaTick, hcTick, fbTick, t],
-  );
-
-  const corridorStrategyLine = useMemo(
-    () => formatCorridorStrategyDailyLine(buildPrimaryCorridorStrategyReport(t), t),
-    [cstTick, ffdTick, ssfTick, adpTick, esTick, aaTick, hcTick, fbTick, t],
-  );
-
-  const marketTimingLine = useMemo(
-    () => formatMarketTimingDailyLine(buildPrimaryMarketTimingReport(t), t),
-    [mtmTick, cstTick, ffdTick, ssfTick, adpTick, esTick, aaTick, hcTick, fbTick, t],
-  );
-
-  const controlTowerLine = useMemo(() => {
-    if (isCommandCompositionRestricted()) return t("safe.console.controlTowerUnavailable");
-    return formatControlTowerDailyLine(buildControlTowerSnapshot(t, locale), t);
-  }, [sctTick, mtmTick, cstTick, ffdTick, ssfTick, adpTick, esTick, aaTick, hcTick, fbTick, locale, t, safeEnabled, safeDisabledKey]);
-
-  const executionFeedbackLine = useMemo(() => {
-    if (isCommandCompositionRestricted()) return null;
-    return formatExecutionFeedbackDailyLine(t, locale);
-  }, [efbTick, opmTick, sctTick, mtmTick, cstTick, ffdTick, ssfTick, adpTick, esTick, aaTick, hcTick, fbTick, locale, t, safeEnabled, safeDisabledKey]);
-
-  const osHealthAuditLine = useMemo(
-    () => formatOsHealthAuditDailyLine(buildOsHealthAuditReport(), t),
-    [ohaTick, sctTick, mtmTick, cstTick, ffdTick, ssfTick, adpTick, esTick, aaTick, hcTick, fbTick, t],
-  );
-
-  const guidedSetupLine = useMemo(
-    () => formatGuidedSetupDailyLine(buildGuidedSetupPlan(undefined, t, locale), t),
-    [gspTick, ohaTick, sctTick, mtmTick, cstTick, ffdTick, ssfTick, adpTick, esTick, aaTick, hcTick, fbTick, locale, t],
-  );
-
-  const operatorModeLine = useMemo(() => {
-    if (isSafeModeFeatureDisabled("operator_work_order")) {
-      const fromMem = peekOperatorBriefSession()?.brief ?? null;
-      return formatOperatorModeDailyLine(fromMem, t);
-    }
-    return formatOperatorModeDailyLine(buildOperatorBrief(t), t);
-  }, [opmTick, gspTick, ohaTick, sctTick, mtmTick, cstTick, ffdTick, ssfTick, adpTick, esTick, aaTick, hcTick, fbTick, t, safeEnabled, safeDisabledKey]);
-
-  const warRoomLine = useMemo(() => {
-    if (isCommandCompositionRestricted()) return getDailyWarRoomDailyLineCached(t);
-    return getDailyWarRoomDailyLine(t, locale);
-  }, [dwrTick, esTick, aaTick, hcTick, fbTick, opmTick, pprTick, sctTick, locale, t, safeEnabled, safeDisabledKey]);
-
-  const morningFlowLine = useMemo(
-    () => getMorningFlowDailyLine(t, locale),
-    [mflowTick, dwrTick, esTick, aaTick, hcTick, fbTick, opmTick, pprTick, sctTick, locale, t],
-  );
-
-  const eveningCloseLine = useMemo(
-    () => getEveningCloseDailyLine(t, locale),
-    [ecloseTick, mflowTick, dwrTick, esTick, aaTick, hcTick, fbTick, opmTick, pprTick, sctTick, locale, t],
-  );
-
-  const founderBriefSummary = useMemo(() => {
-    if (isCommandCompositionRestricted()) return getFounderBriefDailySummaryFromCache(t);
-    return getFounderBriefDailySummary(t);
-  }, [esTick, aaTick, hcTick, fbTick, t, safeEnabled, safeDisabledKey]);
-
-  const assortmentLine = useMemo(() => {
-    if (!getActiveEntitySnapshot()) return null;
-    const d = getAssortmentDailyDigest(t);
-    if (!d) return null;
-    return t(d.lineKey, d.vars);
-  }, [esTick, aaTick, t]);
-
-  const assortmentChecklistLine = useMemo(() => {
-    if (!getActiveEntitySnapshot()) return null;
-    return getAssortmentChecklistDigestLine(t);
-  }, [esTick, aaTick, t]);
-
-  const assortmentReviewCarryLine = useMemo(() => {
-    if (!getActiveEntitySnapshot()) return null;
-    return getAssortmentReviewCarryDigestLine(t);
-  }, [esTick, aaTick, t]);
-
-  const assortmentRepeatedBlockerLine = useMemo(() => {
-    if (!getActiveEntitySnapshot()) return null;
-    return getAssortmentRepeatedBlockerDigestLine(t);
-  }, [esTick, aaTick, t]);
-
-  const assortmentLearningLine = useMemo(() => {
-    if (!getActiveEntitySnapshot()) return null;
-    return getAssortmentLearningDigestLine(t);
-  }, [esTick, aaTick, t]);
-
-  const assortmentExecutiveReportLine = useMemo(() => {
-    if (!getActiveEntitySnapshot()) return null;
-    return getAssortmentExecutiveReportDigestLine(t);
-  }, [esTick, aaTick, t]);
-
-  const launchExecutionLine = useMemo(() => getLaunchExecutionDailyDigestLine(t), [hcTick, aaTick, t]);
-  const collectionExecutionLine = useMemo(
-    () => (launchExecutionLine ? null : getCollectionExecutionDailyDigestLine(t)),
-    [launchExecutionLine, hcTick, aaTick, t],
-  );
-  const heroExecutionLine = useMemo(
-    () => (launchExecutionLine || collectionExecutionLine ? null : getHeroExecutionDailyDigestLine(t)),
-    [launchExecutionLine, collectionExecutionLine, hcTick, aaTick, t],
-  );
-  const heroCommandLine = useMemo(
-    () =>
-      launchExecutionLine || collectionExecutionLine || heroExecutionLine
-        ? null
-        : getHeroCommandDailyDigestLine(t),
-    [launchExecutionLine, collectionExecutionLine, heroExecutionLine, hcTick, t],
-  );
-
-  const entitySnapBanner = useMemo(() => selectEntitySnapshotBannerCounts(), [esTick]);
-  const snapshotActionLine = useMemo(() => {
-    const s = getActiveEntitySnapshot();
-    if (!s) return null;
-    return formatSnapshotTopActionLine(t, deriveSnapshotIntelligence(s));
-  }, [esTick, t]);
 
   const rp = orch.resourcePressure;
   const primary = orch.routes.find((r) => r.id === orch.primaryRouteId) ?? orch.routes[0];
@@ -413,75 +286,12 @@ export function DailyOperatingConsole({ active, onNavigate }: Props) {
   const entitySnapBlocks = useMemo(
     () =>
       buildEntitySnapBlocks(roleMode, {
-        warRoomLine,
-        executionFeedbackLine,
-        controlTowerLine,
-        operatorModeLine,
-        guidedSetupLine,
-        osHealthAuditLine,
-        founderBriefSummary,
-        economicPressureLine,
-        unitEconomicsLine,
-        guardrailLine,
-        pricePressureLine,
-        adPressureLine,
-        scalingSafetyLine,
-        productionPressureLine,
-        fboFbsDecisionLine,
-        corridorStrategyLine,
-        marketTimingLine,
-        snapshotActionLine,
-        entitySnapBanner,
+        ...consoleLines,
         entitySnapBannerT: t,
-        launchExecutionLine,
-        collectionExecutionLine,
-        heroExecutionLine,
-        heroCommandLine,
-        assortmentLine,
-        assortmentChecklistLine,
-        assortmentReviewCarryLine,
-        assortmentRepeatedBlockerLine,
-        assortmentLearningLine,
-        assortmentExecutiveReportLine,
         onNavigate,
         cleanDayHiddenNavIds: cleanDay.enabled && cleanHide.size ? cleanHide : undefined,
       }),
-    [
-      roleMode,
-      warRoomLine,
-      executionFeedbackLine,
-      controlTowerLine,
-      operatorModeLine,
-      guidedSetupLine,
-      osHealthAuditLine,
-      founderBriefSummary,
-      economicPressureLine,
-      unitEconomicsLine,
-      guardrailLine,
-      pricePressureLine,
-      adPressureLine,
-      scalingSafetyLine,
-      productionPressureLine,
-      fboFbsDecisionLine,
-      corridorStrategyLine,
-      marketTimingLine,
-      snapshotActionLine,
-      entitySnapBanner,
-      launchExecutionLine,
-      collectionExecutionLine,
-      heroExecutionLine,
-      heroCommandLine,
-      assortmentLine,
-      assortmentChecklistLine,
-      assortmentReviewCarryLine,
-      assortmentRepeatedBlockerLine,
-      assortmentLearningLine,
-      assortmentExecutiveReportLine,
-      onNavigate,
-      t,
-      cleanDay.enabled,
-      cleanHide,
-    ],
+    [roleMode, consoleLines, onNavigate, t, cleanDay.enabled, cleanHide],
   );
 
   return (
@@ -502,18 +312,18 @@ export function DailyOperatingConsole({ active, onNavigate }: Props) {
         </p>
       ) : null}
 
-      {morningFlowLine ? (
+      {deferredLines.morningFlowLine ? (
         <p className="dom__entity-snap dom__entity-snap--mflow" role="status">
           <button type="button" className="dom__aa-link dom__aa-link--mflow" onClick={() => onNavigate("morningStart")}>
-            {morningFlowLine}
+            {deferredLines.morningFlowLine}
           </button>
         </p>
       ) : null}
 
-      {eveningCloseLine ? (
+      {deferredLines.eveningCloseLine ? (
         <p className="dom__entity-snap dom__entity-snap--eclose" role="status">
           <button type="button" className="dom__aa-link dom__aa-link--eclose" onClick={() => onNavigate("eveningClose")}>
-            {eveningCloseLine}
+            {deferredLines.eveningCloseLine}
           </button>
         </p>
       ) : null}

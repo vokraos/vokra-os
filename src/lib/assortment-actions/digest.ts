@@ -1,8 +1,8 @@
 import { deriveSnapshotIntelligence, getActiveEntitySnapshot } from "../entity-snapshot";
+import { getCachedMergedAssortmentActions } from "./cache";
 import { buildAssortmentExecutionPlan } from "./execution-plan";
-import { deriveAssortmentActions, summarizeAssortmentActions } from "./derive";
+import { summarizeAssortmentActions } from "./derive";
 import { getCorridorPrioritySignalsFromIntel } from "./prioritization";
-import { mergeStatusesIntoActions } from "./storage";
 import { getAssortmentChecklistMap, getAssortmentChecklistProgress, snapshotHasAssortmentChecklist } from "./checklist-storage";
 import { computeAssortmentReviewCarryDigest, buildAssortmentExecutionReview } from "./execution-review";
 import { getTopLearningSignals } from "./execution-learning";
@@ -18,10 +18,25 @@ export type AssortmentDailyDigest = {
   quickWinNew: number;
 };
 
-export function getAssortmentDailyDigest(t: TFn): AssortmentDailyDigest | null {
-  const s = getActiveEntitySnapshot();
-  if (!s) return null;
-  const merged = mergeStatusesIntoActions(deriveAssortmentActions(s), s.id);
+export type AssortmentConsoleDigests = {
+  daily: AssortmentDailyDigest | null;
+  dailyLine: string | null;
+  checklistLine: string | null;
+  reviewCarryLine: string | null;
+  repeatedBlockerLine: string | null;
+  learningLine: string | null;
+  executiveReportLine: string | null;
+};
+
+function mergedForSnapshot(s: NonNullable<ReturnType<typeof getActiveEntitySnapshot>>) {
+  return getCachedMergedAssortmentActions(s);
+}
+
+function buildDailyDigestFromMerged(
+  s: NonNullable<ReturnType<typeof getActiveEntitySnapshot>>,
+  merged: ReturnType<typeof getCachedMergedAssortmentActions>,
+  t: TFn,
+): AssortmentDailyDigest | null {
   const summary = summarizeAssortmentActions(merged);
   const base = {
     newCount: summary.newCount,
@@ -60,87 +75,114 @@ export function getAssortmentDailyDigest(t: TFn): AssortmentDailyDigest | null {
   };
 }
 
+/** Single-pass assortment digest bundle for Daily Operating Console. */
+export function buildAssortmentConsoleDigests(t: TFn): AssortmentConsoleDigests | null {
+  const s = getActiveEntitySnapshot();
+  if (!s) return null;
+
+  const merged = mergedForSnapshot(s);
+  const daily = buildDailyDigestFromMerged(s, merged, t);
+  const dailyLine = daily ? t(daily.lineKey, daily.vars) : null;
+
+  let checklistLine: string | null = null;
+  let reviewCarryLine: string | null = null;
+  let executiveReportLine: string | null = null;
+  let plan: ReturnType<typeof buildAssortmentExecutionPlan> | null = null;
+
+  if (snapshotHasAssortmentChecklist(s.id) && merged.length > 0) {
+    plan = buildAssortmentExecutionPlan(s.id, merged);
+    const p = getAssortmentChecklistProgress(s.id, plan);
+    checklistLine = t("daily.assortment.checklistLine", {
+      doneToday: String(p.doneToday),
+      totalToday: String(p.totalToday),
+      blocked: String(p.blocked),
+    });
+    const v = computeAssortmentReviewCarryDigest(s.id, plan);
+    reviewCarryLine = v ? t("daily.assortment.reviewCarryLine", { blocked: String(v.blocked), carry: String(v.carry) }) : null;
+    const map = getAssortmentChecklistMap(s.id);
+    const review = buildAssortmentExecutionReview(s.id, plan, map, t);
+    if (review) {
+      executiveReportLine = t("daily.assortment.reportLine", {
+        pct: String(review.completionRate),
+        blocked: String(review.blockedItems.length),
+        focus: clip(t(review.nextSuggestedFocusKey), 48),
+      });
+    }
+  }
+
+  let repeatedBlockerLine: string | null = null;
+  if (merged.length > 0) {
+    const rbPlan = plan ?? buildAssortmentExecutionPlan(s.id, merged);
+    const rb = rbPlan.repeatedBlockers;
+    if (rb.length) {
+      const first = rb[0]!;
+      const map = getAssortmentChecklistMap(s.id);
+      repeatedBlockerLine = t("daily.assortment.repeatedBlocker", {
+        hint: clip(map[first]?.title ?? first.slice(-10), 44),
+      });
+    }
+  }
+
+  let learningLine: string | null = null;
+  const top = getTopLearningSignals(s.id, 1);
+  if (top.length) {
+    const sig = top[0]!;
+    const typeLabel = t(`aa.type.${sig.actionType}`);
+    const title = t(sig.title, {
+      ...(sig.titleVars ?? {}),
+      type: typeLabel,
+      n: sig.reasonVars?.n ?? "",
+    });
+    learningLine = t("daily.assortment.learnedLine", { title: clip(title, 72) });
+  }
+
+  return {
+    daily,
+    dailyLine,
+    checklistLine,
+    reviewCarryLine,
+    repeatedBlockerLine,
+    learningLine,
+    executiveReportLine,
+  };
+}
+
+export function getAssortmentDailyDigest(t: TFn): AssortmentDailyDigest | null {
+  const s = getActiveEntitySnapshot();
+  if (!s) return null;
+  return buildDailyDigestFromMerged(s, mergedForSnapshot(s), t);
+}
+
 /** One-line checklist accountability for Daily Operating Console (only when checklist exists for snapshot). */
 export function getAssortmentChecklistDigestLine(t: TFn): string | null {
-  const s = getActiveEntitySnapshot();
-  if (!s || !snapshotHasAssortmentChecklist(s.id)) return null;
-  const merged = mergeStatusesIntoActions(deriveAssortmentActions(s), s.id);
-  if (merged.length === 0) return null;
-  const plan = buildAssortmentExecutionPlan(s.id, merged);
-  const p = getAssortmentChecklistProgress(s.id, plan);
-  return t("daily.assortment.checklistLine", {
-    doneToday: String(p.doneToday),
-    totalToday: String(p.totalToday),
-    blocked: String(p.blocked),
-  });
+  return buildAssortmentConsoleDigests(t)?.checklistLine ?? null;
 }
 
 /** Compact carry-forward line when blocked or deferred/stale friction exists. */
 export function getAssortmentReviewCarryDigestLine(t: TFn): string | null {
-  const s = getActiveEntitySnapshot();
-  if (!s || !snapshotHasAssortmentChecklist(s.id)) return null;
-  const merged = mergeStatusesIntoActions(deriveAssortmentActions(s), s.id);
-  if (merged.length === 0) return null;
-  const plan = buildAssortmentExecutionPlan(s.id, merged);
-  const v = computeAssortmentReviewCarryDigest(s.id, plan);
-  if (!v) return null;
-  return t("daily.assortment.reviewCarryLine", { blocked: String(v.blocked), carry: String(v.carry) });
+  return buildAssortmentConsoleDigests(t)?.reviewCarryLine ?? null;
 }
 
 /** Repeated checklist blocker — one compact line for Daily. */
 export function getAssortmentRepeatedBlockerDigestLine(t: TFn): string | null {
-  const s = getActiveEntitySnapshot();
-  if (!s) return null;
-  const merged = mergeStatusesIntoActions(deriveAssortmentActions(s), s.id);
-  if (merged.length === 0) return null;
-  const plan = buildAssortmentExecutionPlan(s.id, merged);
-  const rb = plan.repeatedBlockers;
-  if (!rb.length) return null;
-  const first = rb[0]!;
-  const map = getAssortmentChecklistMap(s.id);
-  const hint = clip(map[first]?.title ?? first.slice(-10), 44);
-  return t("daily.assortment.repeatedBlocker", { hint });
+  return buildAssortmentConsoleDigests(t)?.repeatedBlockerLine ?? null;
 }
 
 /** Top stored learning signal — compact line for Daily Operating. */
 export function getAssortmentLearningDigestLine(t: TFn): string | null {
-  const s = getActiveEntitySnapshot();
-  if (!s) return null;
-  const top = getTopLearningSignals(s.id, 1);
-  if (!top.length) return null;
-  const sig = top[0]!;
-  const typeLabel = t(`aa.type.${sig.actionType}`);
-  const title = t(sig.title, {
-    ...(sig.titleVars ?? {}),
-    type: typeLabel,
-    n: sig.reasonVars?.n ?? "",
-  });
-  return t("daily.assortment.learnedLine", { title: clip(title, 72) });
+  return buildAssortmentConsoleDigests(t)?.learningLine ?? null;
 }
 
 /** Optional executive one-liner when checklist exists (import-driven, no sales). */
 export function getAssortmentExecutiveReportDigestLine(t: TFn): string | null {
-  const s = getActiveEntitySnapshot();
-  if (!s || !snapshotHasAssortmentChecklist(s.id)) return null;
-  const merged = mergeStatusesIntoActions(deriveAssortmentActions(s), s.id);
-  if (merged.length === 0) return null;
-  const plan = buildAssortmentExecutionPlan(s.id, merged);
-  const map = getAssortmentChecklistMap(s.id);
-  const review = buildAssortmentExecutionReview(s.id, plan, map, t);
-  if (!review) return null;
-  const focus = clip(t(review.nextSuggestedFocusKey), 48);
-  return t("daily.assortment.reportLine", {
-    pct: String(review.completionRate),
-    blocked: String(review.blockedItems.length),
-    focus,
-  });
+  return buildAssortmentConsoleDigests(t)?.executiveReportLine ?? null;
 }
 
 /** Optional secondary digest (structure signals) — not wired by default. */
 export function getAssortmentDailyDigestFallback(_t: TFn): AssortmentDailyDigest | null {
   const s = getActiveEntitySnapshot();
   if (!s) return null;
-  const merged = mergeStatusesIntoActions(deriveAssortmentActions(s), s.id);
+  const merged = mergedForSnapshot(s);
   const summary = summarizeAssortmentActions(merged);
   const intel = deriveSnapshotIntelligence(s);
   const sig = getCorridorPrioritySignalsFromIntel(intel);

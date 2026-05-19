@@ -185,10 +185,15 @@ function familySuggestions(s: EntitySnapshot): SuggestedValueGroup[] {
 
 function seoSuggestions(s: EntitySnapshot): SuggestedValueGroup[] {
   const acc = new Map<string, { cardIds: string[]; codes: string[]; titles: string[]; confidence: "high" | "medium" | "low" }>();
+  const skuByCode = new Map<string, (typeof s.skuEntities)[number]>();
+  for (const row of s.skuEntities) {
+    const code = trim(row.skuCode);
+    if (code) skuByCode.set(code, row);
+  }
 
   for (const c of s.cardEntities) {
     if (!c.missingSeo) continue;
-    const sku = s.skuEntities.find((x) => x.skuCode === c.skuCode);
+    const sku = skuByCode.get(trim(c.skuCode));
     const title = trim(sku?.title ?? c.cardTitle);
     const cor = trim(sku?.corridor ?? c.corridor);
     const hint = inferSeoClusterFromContext(title, cor);

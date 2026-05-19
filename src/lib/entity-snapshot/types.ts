@@ -2,7 +2,7 @@ export const ENTITY_SNAPSHOT_SCHEMA = "vokra.entitySnapshot.v1" as const;
 
 export const ENTITY_SNAPSHOT_EVENT = "vokra-entity-snapshot" as const;
 
-export type EntitySnapshotImportType = "manual_sku_list" | "manual_card_list";
+export type EntitySnapshotImportType = "manual_sku_list" | "manual_card_list" | "wb_api_sync";
 
 export type EntitySnapshotWarning = {
   id: string;

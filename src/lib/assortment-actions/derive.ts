@@ -1,8 +1,9 @@
 import type { NavId } from "../../types";
 import { deriveSnapshotIntelligence } from "../entity-snapshot/intelligence";
+import type { SnapshotIntelligence } from "../entity-snapshot/intelligence";
 import type { CardEntityRow, EntitySnapshot, SkuEntityRow } from "../entity-snapshot/types";
 import { stableActionId } from "./hash";
-import { ASSORTMENT_ECON_PLACEHOLDER, enrichAssortmentActions } from "./prioritization";
+import { ASSORTMENT_ECON_PLACEHOLDER } from "./prioritization";
 import type {
   AssortmentAction,
   AssortmentActionCategory,
@@ -94,10 +95,12 @@ function duplicateSkuRisk(skus: SkuEntityRow[]): { dupCodes: string[]; skuIds: s
 }
 
 /**
- * Operator-ready assortment actions from the active entity snapshot + intelligence (no APIs).
+ * Structural assortment actions from snapshot intelligence only (no pressure enrichment).
  */
-export function deriveAssortmentActions(snapshot: EntitySnapshot): AssortmentAction[] {
-  const intel = deriveSnapshotIntelligence(snapshot);
+export function deriveStructuralAssortmentActions(
+  snapshot: EntitySnapshot,
+  intel: SnapshotIntelligence = deriveSnapshotIntelligence(snapshot),
+): AssortmentAction[] {
   const skus = snapshot.skuEntities;
   const cards = snapshot.cardEntities;
   const out: AssortmentAction[] = [];
@@ -233,7 +236,21 @@ export function deriveAssortmentActions(snapshot: EntitySnapshot): AssortmentAct
 
   const top = intel.corridorSummary[0];
   if (top && top.corridor && top.corridor !== "—" && top.total >= 2) {
-    const skuIn = skus.filter((s) => trim(s.corridor) === top.corridor || (!trim(s.corridor) && cards.some((c) => c.skuCode === s.skuCode && trim(c.corridor) === top.corridor)));
+    const topCorridor = top.corridor;
+    const cardCorridorBySku = new Map<string, string>();
+    for (const c of cards) {
+      const code = trim(c.skuCode);
+      if (!code) continue;
+      cardCorridorBySku.set(code, trim(c.corridor));
+    }
+    const skuIn = skus.filter((s) => {
+      const skuCorridor = trim(s.corridor);
+      if (skuCorridor === topCorridor) return true;
+      if (!skuCorridor || skuCorridor === "—") {
+        return cardCorridorBySku.get(trim(s.skuCode)) === topCorridor;
+      }
+      return false;
+    });
     const skuIds = skuIn.map((s) => s.id);
     const cardIds = cards.filter((c) => trim(c.corridor) === top.corridor).map((c) => c.id);
     pushAction(out, {
@@ -511,7 +528,7 @@ export function deriveAssortmentActions(snapshot: EntitySnapshot): AssortmentAct
     return b.affectedSkuIds.length + b.affectedCardIds.length - (a.affectedSkuIds.length + a.affectedCardIds.length);
   });
 
-  return enrichAssortmentActions(snapshot, out);
+  return out;
 }
 
 export function summarizeAssortmentActions(actions: readonly AssortmentAction[]): {

@@ -2,8 +2,12 @@ import { gatherEconomicPressureContext } from "../economic-pressure";
 import { loadBundleForIntegrations, resolveUnitEconomics } from "../unit-economics";
 import type { AdPressureGatherContext } from "./types";
 
-export function gatherAdPressureContext(overrides?: Partial<Pick<AdPressureGatherContext, "corridor" | "marketplace" | "stockMode">>): AdPressureGatherContext {
-  const econ = gatherEconomicPressureContext();
+export function gatherAdPressureContext(
+  overrides?: Partial<Pick<AdPressureGatherContext, "corridor" | "marketplace" | "stockMode">> & {
+    econ?: AdPressureGatherContext["econ"];
+  },
+): AdPressureGatherContext {
+  const econ = overrides?.econ ?? gatherEconomicPressureContext();
   const launchPlan = econ.launchPlan;
   const marketplace = overrides?.marketplace ?? launchPlan?.marketplace ?? "WB/Ozon";
   const stockMode = overrides?.stockMode ?? "FBO";

@@ -6,6 +6,7 @@ import { MARKETPLACE_DATA_DOMAINS } from "./domains";
 import { IMPORT_SOURCE_REGISTRY } from "./importRegistry";
 import { deriveSyncReadinessLevel, runIntegrationReadinessChecks } from "./readinessChecks";
 import { buildIntegrationRoadmap } from "./roadmap";
+import { patchWbConnectionProfile, isWbApiConnected } from "./wbConnection";
 import type { IntegrationReadinessReport, SyncRiskLevel } from "./types";
 
 type TFn = (key: string, vars?: Record<string, string>) => string;
@@ -29,7 +30,10 @@ function collectRisks(
   level: ReturnType<typeof deriveSyncReadinessLevel>,
 ): { syncRisks: string[]; operationalRisks: string[]; blockers: string[] } {
   const blockers = checks.filter((c) => !c.passed).map((c) => t(c.detailKey));
-  const syncRisks: string[] = [t("iready.risk.noLiveApi")];
+  const syncRisks: string[] = [];
+  if (!isWbApiConnected()) {
+    syncRisks.push(t("iready.risk.noLiveApi"));
+  }
   const operationalRisks: string[] = [];
 
   for (const d of MARKETPLACE_DATA_DOMAINS) {
@@ -72,7 +76,7 @@ export function buildIntegrationReadinessReport(t: TFn, locale: AppLocale = "en"
     readinessLevel,
     t("iready.notes.wb"),
     t("iready.notes.ozon"),
-  );
+  ).map((c) => patchWbConnectionProfile(c, t));
 
   return {
     id: newReportId(),

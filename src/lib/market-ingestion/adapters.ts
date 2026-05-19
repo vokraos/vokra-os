@@ -24,7 +24,7 @@ export const INGESTION_ADAPTERS: readonly IngestionAdapterDescriptor[] = [
     platform: "wb",
     channelHooks: ["wb.ctr", "wb.cr", "wb.buyout"],
     labelKey: "ingest.adapter.wb_analytics",
-    status: "stub",
+    status: "schema_ready",
   },
   {
     id: "adapter.ozon.seller_api",

@@ -5,6 +5,14 @@ import { useLocalStorageState } from "../lib/hooks/useLocalStorageState";
 import { useI18n } from "../lib/i18n/I18nContext";
 import type { AiOutputMode } from "../lib/i18n/localeStorage";
 import { getOpenAISettings, setOpenAIApiKey, setOpenAIModel } from "../lib/settings";
+import { STORAGE_KEYS } from "../lib/storage-keys";
+import {
+  getWbApiToken,
+  getWbConnectionStatus,
+  setWbApiToken,
+  syncWbToEntitySnapshot,
+  testWbConnection,
+} from "../lib/wb-api";
 import {
   MEMORY_CHANGED_EVENT,
   createProject,
@@ -22,6 +30,13 @@ export function SettingsView() {
   const [strictDna, setStrictDna] = useState(true);
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
   const [testing, setTesting] = useState(false);
+  const [wbToken, setWbTokenState] = useLocalStorageState(STORAGE_KEYS.wbApiToken, "");
+  const [wbStatus, setWbStatus] = useState<{ ok: boolean; text: string } | null>(() => {
+    const conn = getWbConnectionStatus();
+    return { ok: conn.status === "connected", text: t(conn.messageKey) };
+  });
+  const [wbTesting, setWbTesting] = useState(false);
+  const [wbSyncing, setWbSyncing] = useState(false);
   const [projects, setProjects] = useState(() => listProjectSummaries());
   const [activeId, setActiveIdState] = useState<string | null>(() => getActiveProjectId());
   const [newProjectName, setNewProjectName] = useState("");
@@ -55,6 +70,56 @@ export function SettingsView() {
   function setModel(v: string) {
     setModelState(v);
     setOpenAIModel(v);
+  }
+
+  function setWbToken(v: string) {
+    setWbTokenState(v);
+    setWbApiToken(v);
+    const conn = getWbConnectionStatus();
+    setWbStatus({ ok: conn.status === "connected", text: t(conn.messageKey) });
+  }
+
+  async function testWbConn() {
+    setWbStatus(null);
+    if (!getWbApiToken()) {
+      setWbStatus({ ok: false, text: t("settings.wbNotConnected") });
+      return;
+    }
+    setWbTesting(true);
+    try {
+      const result = await testWbConnection();
+      setWbStatus({
+        ok: result.ok,
+        text: result.error ? `${t(result.messageKey)} — ${result.error}` : t(result.messageKey),
+      });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : t("settings.testFailed");
+      setWbStatus({ ok: false, text: msg });
+    } finally {
+      setWbTesting(false);
+    }
+  }
+
+  async function syncWbData() {
+    setWbStatus(null);
+    if (!getWbApiToken()) {
+      setWbStatus({ ok: false, text: t("settings.wbNotConnected") });
+      return;
+    }
+    setWbSyncing(true);
+    try {
+      const result = await syncWbToEntitySnapshot();
+      if (result.ok) {
+        setWbStatus({ ok: true, text: t("settings.wbSyncOk", { n: String(result.skuCount) }) });
+      } else {
+        setWbStatus({ ok: false, text: result.message || t("settings.wbSyncFail") });
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : t("settings.wbSyncFail");
+      setWbStatus({ ok: false, text: msg });
+    } finally {
+      setWbSyncing(false);
+    }
   }
 
   async function testConnection() {
@@ -174,6 +239,31 @@ export function SettingsView() {
               {testing ? t("settings.testing") : t("settings.test")}
             </button>
             {status && <span className={`status ${status.ok ? "status--ok" : "status--bad"}`}>{status.text}</span>}
+          </div>
+        </article>
+
+        <article className="glass-panel settings-card">
+          <h3 className="settings-h">{t("settings.wb")}</h3>
+          <label className="field-label" htmlFor="wb-token">
+            {t("settings.wbToken")}
+          </label>
+          <input
+            id="wb-token"
+            className="input"
+            value={wbToken}
+            onChange={(e) => setWbToken(e.target.value)}
+            placeholder="..."
+            autoComplete="off"
+          />
+          <p className="settings-note">{t("settings.wbNote")}</p>
+          <div className="row" style={{ marginTop: 14 }}>
+            <button type="button" className="ghost-btn" onClick={() => void testWbConn()} disabled={wbTesting || wbSyncing}>
+              {wbTesting ? t("settings.testing") : t("settings.wbTest")}
+            </button>
+            <button type="button" className="ghost-btn" onClick={() => void syncWbData()} disabled={wbTesting || wbSyncing}>
+              {wbSyncing ? t("settings.wbSyncing") : t("settings.wbSync")}
+            </button>
+            {wbStatus && <span className={`status ${wbStatus.ok ? "status--ok" : "status--bad"}`}>{wbStatus.text}</span>}
           </div>
         </article>
 

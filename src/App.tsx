@@ -28,6 +28,7 @@ import { applyCleanDayModeRestorePayload, consumeCleanDayModeRestore } from "./l
 import { STORAGE_KEYS } from "./lib/storage-keys";
 
 const SIDEBAR_COLLAPSED_KEY = STORAGE_KEYS.sidebarCollapsed;
+const DAILY_CONSOLE_FULL = new Set<NavId>(["warRoom"]);
 
 export default function App() {
   const { t } = useI18n();
@@ -82,10 +83,63 @@ export default function App() {
     return () => window.removeEventListener("vokra:navigate-request", onNavigateRequest as EventListener);
   }, [goNav]);
 
+  const showDailyConsole = active !== "home";
+  const isDailyConsoleFull = showDailyConsole && DAILY_CONSOLE_FULL.has(active);
+  const isDailyConsoleCollapsed = showDailyConsole && !isDailyConsoleFull;
+  const isContentFirst = isDailyConsoleCollapsed;
+
+  const mainStage = (
+    <main className="main-stage">
+      <div className="workspace">
+        {(VIEW_REGISTRY[active] ?? VIEW_REGISTRY.home!)(goNav)}
+      </div>
+    </main>
+  );
+
+  const dailyConsoleFull = isDailyConsoleFull ? (
+    <div className="workspace">
+      <DailyOperatingConsole active={active} onNavigate={goNav} />
+    </div>
+  ) : null;
+
+  const dailyConsoleCollapsed = isDailyConsoleCollapsed ? (
+    <details className="workspace os-details os-details--daily">
+      <summary>{t("daily.title")}</summary>
+      <div className="os-details__body">
+        <DailyOperatingConsole active={active} onNavigate={goNav} />
+      </div>
+    </details>
+  ) : null;
+
+  const shellDetails =
+    active !== "home" ? (
+      <div className="workspace os-shell-details">
+        <details className="os-details">
+          <summary>{t("shell.detailsContext")}</summary>
+          <div className="os-details__body">
+            <CognitiveModuleRibbon moduleId={active} variant="signalsOnly" />
+          </div>
+        </details>
+        <details className="os-details">
+          <summary>{t("shell.detailsInitiatives")}</summary>
+          <div className="os-details__body">
+            <ExecutiveInitiativeStream active={active} onNavigate={goNav} />
+          </div>
+        </details>
+        <details className="os-details">
+          <summary>{t("shell.detailsDecision")}</summary>
+          <div className="os-details__body">
+            <ExecutiveDecisionDeck active={active} />
+          </div>
+        </details>
+      </div>
+    ) : null;
+
   return (
     <div
       className="app-shell"
       style={cssVars as CSSProperties}
+      data-active-nav={active}
       data-cog-regime={regime}
       data-cog-pulse-gen={String(pulseGeneration % 10000)}
       data-init-urgency={initiativeUrgency}
@@ -130,7 +184,7 @@ export default function App() {
           onToggleCollapsed={() => setSidebarCollapsed((v) => !v)}
           focusMode={focusMode}
         />
-        <div className="main-wrap">
+        <div className={`main-wrap${active === "founderBrief" ? " main-wrap--fbrief" : ""}`}>
           <SignalFabricAmbient active={active} />
           <GlobalSignalNetwork active={active} />
           <header className="top-bar">
@@ -154,45 +208,28 @@ export default function App() {
               {t("shell.live")}
             </div>
           </header>
-          <SystemStrip active={active} />
+          {active !== "home" && <SystemStrip active={active} />}
           {safe.enabled ? <SafeModeBanner onNavigate={goNav} /> : null}
           {active !== "home" && (
-            <div className="os-depth-strip workspace">
+            <div className={`os-depth-strip workspace${active === "founderBrief" ? " os-depth-strip--quiet" : ""}`}>
               <DepthSwitcher />
             </div>
           )}
-          {active !== "home" && (
-            <div className="workspace">
-              <DailyOperatingConsole active={active} onNavigate={goNav} />
-            </div>
+          {isDailyConsoleFull ? (
+            <>
+              {dailyConsoleFull}
+              {shellDetails}
+              {mainStage}
+            </>
+          ) : isContentFirst ? (
+            <>
+              {mainStage}
+              {dailyConsoleCollapsed}
+              {shellDetails}
+            </>
+          ) : (
+            <>{mainStage}</>
           )}
-          {active !== "home" ? (
-            <div className="workspace os-shell-details">
-              <details className="os-details">
-                <summary>{t("shell.detailsContext")}</summary>
-                <div className="os-details__body">
-                  <CognitiveModuleRibbon moduleId={active} variant="signalsOnly" />
-                </div>
-              </details>
-              <details className="os-details">
-                <summary>{t("shell.detailsInitiatives")}</summary>
-                <div className="os-details__body">
-                  <ExecutiveInitiativeStream active={active} onNavigate={goNav} />
-                </div>
-              </details>
-              <details className="os-details">
-                <summary>{t("shell.detailsDecision")}</summary>
-                <div className="os-details__body">
-                  <ExecutiveDecisionDeck active={active} />
-                </div>
-              </details>
-            </div>
-          ) : null}
-          <main className="main-stage">
-            <div className="workspace">
-              {(VIEW_REGISTRY[active] ?? VIEW_REGISTRY.home!)(goNav)}
-            </div>
-          </main>
         </div>
       </div>
       <style>{`

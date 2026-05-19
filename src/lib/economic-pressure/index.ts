@@ -7,6 +7,7 @@ export {
   type EconomicPressureMemoryPayload,
 } from "./types";
 export { newEconomicPressureReportId } from "./ids";
+export type { EconomicPressureGatherOptions } from "./gather";
 export { gatherEconomicPressureContext } from "./gather";
 export { buildEconomicPressureReport } from "./compose";
 export { levelFromScore } from "./pressure";

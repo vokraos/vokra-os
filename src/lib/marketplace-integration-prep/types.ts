@@ -10,6 +10,7 @@ export const CONNECTION_STATES = [
   "planned",
   "architecture_ready",
   "awaiting_credentials",
+  "connected_readonly",
   "disabled",
 ] as const;
 export type ConnectionState = (typeof CONNECTION_STATES)[number];

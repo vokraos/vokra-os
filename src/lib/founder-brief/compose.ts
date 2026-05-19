@@ -1,24 +1,6 @@
 import type { NavId } from "../../types";
 import { newFounderBriefId } from "./ids";
 import { loadLastFounderBrief } from "./storage";
-import {
-  buildEconomicPressureReport,
-  formatEconomicPressureDigestLine,
-  gatherEconomicPressureContext,
-} from "../economic-pressure";
-import { peekEconomicPressureSession } from "../economic-pressure/session";
-import { formatGuardrailFounderLine, loadEconomicGuardrails } from "../economic-guardrails";
-import { buildPrimaryAdvertisingPressureReport, formatAdvertisingPressureFounderLine } from "../ad-pressure";
-import { buildPrimaryMarketTimingReport, formatMarketTimingFounderLine } from "../market-timing";
-import { buildPrimaryCorridorStrategyReport, formatCorridorStrategyFounderLine } from "../corridor-strategy";
-import { formatFboFbsFounderLine } from "../fbo-fbs-decision";
-import { peekFboFbsDecisionSession } from "../fbo-fbs-decision/session";
-import { formatScalingSafetyFounderLine } from "../scaling-safety";
-import { peekScalingSafetySession } from "../scaling-safety/session";
-import { formatProductionPressureFounderLine } from "../production-pressure";
-import { peekProductionPressureSession } from "../production-pressure/session";
-import { buildLaunchPriceReport, formatPricePressureFounderLine } from "../price-positioning";
-import { formatUnitEconomicsFounderLine, loadBundleForIntegrations, resolveUnitEconomics } from "../unit-economics";
 import type { FounderBriefGatherContext } from "./gather";
 import type { BriefField, FounderCommandBrief } from "./types";
 
@@ -183,11 +165,7 @@ export function buildFounderCommandBrief(ctx: FounderBriefGatherContext, t: TFn)
   const nextBestRoute = field(t("fbrief.route", { target: best.text }), best.nav);
 
   const warnings = plan?.warnings.length ?? 0;
-  const econCtx = gatherEconomicPressureContext();
-  const econReportCached =
-    peekEconomicPressureSession()?.report ?? buildEconomicPressureReport(econCtx, t);
-  const econLine = formatEconomicPressureDigestLine(econReportCached, t);
-  let confidenceNote =
+  const confidenceNote =
     !snap
       ? t("fbrief.confidence.noSnap")
       : warnings > 0
@@ -195,42 +173,6 @@ export function buildFounderCommandBrief(ctx: FounderBriefGatherContext, t: TFn)
         : ctx.launchPlan && ctx.launchPlan.launchReadinessScore < 55
           ? t("fbrief.confidence.launchLow", { n: String(ctx.launchPlan.launchReadinessScore) })
           : t("fbrief.confidence.ok");
-  if (econLine) confidenceNote = `${confidenceNote} · ${econLine}`;
-  const ueBundle = loadBundleForIntegrations();
-  const ueLine = formatUnitEconomicsFounderLine(ueBundle.profiles, t);
-  if (ueLine) confidenceNote = `${confidenceNote} · ${ueLine}`;
-  if (ctx.launchPlan?.collectionId) {
-    const launchEcon = resolveUnitEconomics({ collectionId: ctx.launchPlan.collectionId }, ueBundle);
-    if (!launchEcon) confidenceNote = `${confidenceNote} · ${t("ue.founder.noLaunchEconomics")}`;
-    const priceLine = formatPricePressureFounderLine(
-      buildLaunchPriceReport({ collectionId: ctx.launchPlan.collectionId }),
-      t,
-    );
-    if (priceLine) confidenceNote = `${confidenceNote} · ${priceLine}`;
-  }
-  const econReport = econReportCached;
-  const grLine = formatGuardrailFounderLine(
-    loadEconomicGuardrails({
-      expansionPressureElevated:
-        econReport.expansionLevel === "elevated" ||
-        econReport.expansionLevel === "dangerous" ||
-        econReport.expansionLevel === "critical",
-    }),
-    t,
-  );
-  if (grLine) confidenceNote = `${confidenceNote} · ${grLine}`;
-  const adLine = formatAdvertisingPressureFounderLine(buildPrimaryAdvertisingPressureReport(), t);
-  if (adLine) confidenceNote = `${confidenceNote} · ${adLine}`;
-  const ssfLine = formatScalingSafetyFounderLine(peekScalingSafetySession()?.report ?? null, t);
-  if (ssfLine) confidenceNote = `${confidenceNote} · ${ssfLine}`;
-  const pprLine = formatProductionPressureFounderLine(peekProductionPressureSession()?.report ?? null, t);
-  if (pprLine) confidenceNote = `${confidenceNote} · ${pprLine}`;
-  const ffdLine = formatFboFbsFounderLine(peekFboFbsDecisionSession()?.report ?? null, t);
-  if (ffdLine) confidenceNote = `${confidenceNote} · ${ffdLine}`;
-  const cstLine = formatCorridorStrategyFounderLine(buildPrimaryCorridorStrategyReport(t), t);
-  if (cstLine) confidenceNote = `${confidenceNote} · ${cstLine}`;
-  const mtmLine = formatMarketTimingFounderLine(buildPrimaryMarketTimingReport(t), t);
-  if (mtmLine) confidenceNote = `${confidenceNote} · ${mtmLine}`;
 
   const prev = loadLastFounderBrief();
   let sinceLastReview = t("fbrief.change.first");

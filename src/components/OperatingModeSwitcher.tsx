@@ -92,10 +92,10 @@ export function OperatingModeSwitcher({ collapsed = false, onQuickNav }: Props) 
         }
         .orm-switcher__label {
           margin: 0 0 8px;
-          font-size: 0.54rem;
-          letter-spacing: 0.18em;
+          font-size: 0.60rem;
+          letter-spacing: 0.20em;
           text-transform: uppercase;
-          color: var(--c4);
+          color: rgba(148, 165, 210, 0.60);
           font-weight: 600;
         }
         .orm-switcher__seg {
@@ -111,25 +111,25 @@ export function OperatingModeSwitcher({ collapsed = false, onQuickNav }: Props) 
         .orm-switcher__btn {
           border: none;
           background: transparent;
-          color: var(--c4);
+          color: rgba(180, 178, 220, 0.58);
           font-family: var(--font-ui);
-          font-size: 0.64rem;
+          font-size: 0.68rem;
           font-weight: 500;
-          padding: 6px 3px;
+          padding: 7px 4px;
           border-radius: 6px;
           cursor: pointer;
-          letter-spacing: 0.01em;
+          letter-spacing: 0.04em;
           transition: background 0.14s var(--ease-out), color 0.14s var(--ease-out),
                       box-shadow 0.14s var(--ease-out);
         }
-        .orm-switcher__btn-short { display: none; }
+        .orm-switcher__btn-full { display: none; }
+        .orm-switcher__btn-short { display: inline; }
         .orm-switcher__btn:hover:not(.orm-switcher__btn--on) {
           color: rgba(225, 220, 255, 0.88);
           background: rgba(255, 255, 255, 0.06);
         }
         .orm-switcher__btn--on {
-          color: var(--c1);
-          font-weight: 600;
+          color: rgba(230, 226, 255, 0.97);
           background: rgba(255, 255, 255, 0.10);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.16),
@@ -139,8 +139,6 @@ export function OperatingModeSwitcher({ collapsed = false, onQuickNav }: Props) 
         .orm-switcher[data-collapsed="1"] .orm-switcher__seg {
           grid-template-columns: 1fr;
         }
-        .orm-switcher[data-collapsed="1"] .orm-switcher__btn-full { display: none; }
-        .orm-switcher[data-collapsed="1"] .orm-switcher__btn-short { display: inline; }
         .orm-quick {
           display: flex;
           flex-wrap: wrap;
@@ -173,12 +171,8 @@ export function OperatingModeSwitcher({ collapsed = false, onQuickNav }: Props) 
         .orm-compress-hint {
           margin: 10px 0 0;
           font-size: 0.66rem;
-          line-height: 1.5;
-          color: var(--c3);
-        }
-        @media (max-width: 1200px) {
-          .orm-switcher__btn-full { display: none; }
-          .orm-switcher__btn-short { display: inline; }
+          line-height: 1.48;
+          color: rgba(200, 212, 235, 0.80);
         }
       `}</style>
     </div>

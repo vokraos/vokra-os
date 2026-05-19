@@ -734,6 +734,229 @@ label.toggle input:focus-visible {
   overflow: hidden;
 }
 
+/* Founder Brief — atmospheric shell (scoped, no logic changes) */
+.app-shell[data-active-nav="founderBrief"] .os-strip,
+.os-strip--quiet {
+  background: transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.02);
+}
+
+.app-shell[data-active-nav="founderBrief"] .os-strip__inner,
+.os-strip--quiet .os-strip__inner {
+  padding: 3px 0 5px;
+  gap: 6px 14px;
+}
+
+.app-shell[data-active-nav="founderBrief"] .os-strip__pill,
+.os-strip--quiet .os-strip__pill {
+  border: none;
+  background: transparent;
+  padding: 0;
+  opacity: 0.36;
+  font-size: 0.48rem;
+  letter-spacing: 0.12em;
+}
+
+.app-shell[data-active-nav="founderBrief"] .os-strip__pill--mode,
+.os-strip--quiet .os-strip__pill--mode {
+  border: none;
+  color: rgba(170, 185, 210, 0.55);
+}
+
+.app-shell[data-active-nav="founderBrief"] .os-strip__module-k,
+.os-strip--quiet .os-strip__module-k {
+  display: none;
+}
+
+.app-shell[data-active-nav="founderBrief"] .os-strip__module,
+.os-strip--quiet .os-strip__module {
+  opacity: 0.4;
+  font-size: 0.56rem;
+  letter-spacing: 0.04em;
+  color: rgba(160, 175, 200, 0.7);
+}
+
+.app-shell[data-active-nav="founderBrief"] .os-strip__priority,
+.os-strip--quiet .os-strip__priority {
+  display: none;
+}
+
+.app-shell[data-active-nav="founderBrief"] .os-depth-strip--quiet {
+  opacity: 0.42;
+  padding: 2px 0 4px;
+  border-bottom: none;
+}
+
+.app-shell[data-active-nav="founderBrief"] .os-depth-strip--quiet .depth-sw__btn {
+  font-size: 0.48rem;
+  padding: 4px 10px;
+  opacity: 0.65;
+}
+
+.app-shell[data-active-nav="founderBrief"] main.main-stage {
+  position: relative;
+  min-height: min(72vh, calc(100vh - 140px));
+  padding-top: clamp(10px, 1.2vw, 16px);
+  padding-bottom: min(16vh, 112px);
+}
+
+.app-shell[data-active-nav="founderBrief"] main.main-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse 88% 70% at 50% 36%,
+    transparent 32%,
+    rgba(2, 4, 12, 0.28) 100%
+  );
+}
+
+.app-shell[data-active-nav="founderBrief"] main.main-stage > .workspace {
+  position: relative;
+  z-index: 1;
+}
+
+.app-shell[data-active-nav="founderBrief"] .sidebar {
+  position: sticky;
+}
+
+.app-shell[data-active-nav="founderBrief"] .sidebar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -48px;
+  width: 96px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse 100% 75% at 0% 42%,
+    rgba(65, 85, 130, 0.055) 0%,
+    transparent 68%
+  );
+}
+
+/* Founder Brief — spatial atmosphere */
+.fbrief-page--field {
+  position: relative;
+  isolation: isolate;
+}
+
+.fbrief-page--field::before {
+  content: "";
+  position: absolute;
+  top: -6%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(540px, 96vw);
+  height: 58%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse 68% 58% at 50% 44%,
+    rgba(88, 118, 168, 0.065) 0%,
+    rgba(62, 88, 138, 0.028) 42%,
+    transparent 70%
+  );
+  animation: fbrief-focus-breathe var(--fbrief-breathe-dur, 28s) ease-in-out infinite;
+}
+
+.fbrief-page--field::after {
+  content: "";
+  position: absolute;
+  bottom: -18%;
+  left: -4%;
+  right: -4%;
+  height: 50%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.032;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 100% 52px, 80px 100%;
+  mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.55) 38%, rgba(0, 0, 0, 0.15) 100%);
+  animation: fbrief-field-drift var(--fbrief-drift-dur, 200s) linear infinite;
+}
+
+.fbrief-page--field .fbrief-hero::before {
+  content: "";
+  position: absolute;
+  top: -12%;
+  bottom: -8%;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.035;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(140, 165, 210, 0.35) 35%,
+    rgba(140, 165, 210, 0.35) 65%,
+    transparent 100%
+  );
+}
+
+.fbrief-page--field .fbrief-ambient {
+  position: relative;
+  height: 24px;
+  margin-top: 2px;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(100, 140, 200, 0.045) 42%, rgba(100, 140, 200, 0.025) 58%, transparent 100%),
+    linear-gradient(180deg, rgba(80, 120, 180, 0.03) 0%, transparent 100%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+}
+
+.fbrief-page--field .fbrief-ambient::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(120, 160, 220, 0.07), transparent);
+}
+
+.fbrief-page--field .fbrief-ambient::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -20%;
+  width: 38%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(130, 170, 220, 0.06), transparent);
+  animation: fbrief-scan-drift var(--fbrief-scan-dur, 140s) ease-in-out infinite;
+}
+
+.fbrief-page--field .fbrief-tier--action {
+  box-shadow:
+    inset 0 1px 0 rgba(180, 205, 245, 0.06),
+    0 0 48px rgba(70, 110, 170, 0.07);
+}
+
+.fbrief-page--field .fbrief-tier--action .fbrief-tier__txt {
+  text-shadow: 0 0 28px rgba(120, 160, 220, 0.08);
+}
+
+.fbrief-page--field .fbrief-head h1 {
+  text-shadow: 0 0 32px rgba(100, 130, 180, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fbrief-page--field::before,
+  .fbrief-page--field::after,
+  .fbrief-page--field .fbrief-ambient::after {
+    animation: none !important;
+  }
+}
+
 .os-strip__next-k {
   font-size: 0.48rem;
   letter-spacing: 0.18em;

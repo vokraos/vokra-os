@@ -19,7 +19,9 @@ import {
 } from "../lib/daily-war-room";
 import {
   buildFounderCommandBrief,
+  buildConstraintDisplay,
   gatherFounderBriefContext,
+  isNominalBlocked,
   type BriefField,
 } from "../lib/founder-brief";
 import { EVENING_CLOSE_EVENT, loadEveningCloseForMorning } from "../lib/evening-close";
@@ -33,12 +35,31 @@ import {
   getTopProductionSignal,
   loadTodayProductionInput,
 } from "../lib/production-input";
-import { deriveProductionPhase, phaseNextActionLabel } from "../lib/production-phase";
+import { deriveProductionPhase, phaseNextActionLabel, type ProductionPhaseId } from "../lib/production-phase";
 
 type Props = { onNavigate: (id: NavId) => void };
 
 function isWarningConf(key: string) {
   return key.includes("warn") || key.includes("launchLow") || key.includes("noSnap");
+}
+
+/* Map current production phase to the timeline node it lives in. */
+type TimelineNodeKey = "morning" | "production" | "control" | "close";
+
+function timelineNodeForPhase(phaseId: ProductionPhaseId): TimelineNodeKey {
+  switch (phaseId) {
+    case "pre_shift":
+    case "morning_wb":
+      return "morning";
+    case "ozon":
+    case "evening_wb":
+    case "recovery":
+      return "production";
+    case "off_hours":
+      return "close";
+    default:
+      return "production";
+  }
 }
 
 /* ─── Atomic row components ───────────────────────────────────────────────── */
@@ -119,6 +140,11 @@ export function CommandCenterView({ onNavigate }: Props) {
 
   const snapshot        = useMemo(() => buildDailyWarRoomSnapshot(t, locale), [tick, t, locale]);
   const brief           = useMemo(() => buildFounderCommandBrief(gatherFounderBriefContext(), t), [tick, t]);
+  const briefConstraint = useMemo(() => buildConstraintDisplay(brief, t), [brief, t]);
+  const showBriefBlocked  = useMemo(
+    () => !isNominalBlocked(brief.topBlockedItem.text, t),
+    [brief.topBlockedItem.text, t],
+  );
   const priorClose      = useMemo(() => loadEveningCloseForMorning(), [tick]);
   const morningProgress = useMemo(() => loadMorningFlowProgress(), [tick]);
   const topSignal       = useMemo(() => getTopProductionSignal(), [tick]);
@@ -136,6 +162,7 @@ export function CommandCenterView({ onNavigate }: Props) {
   const isWarning        = isWarningConf(snapshot.confidenceNote);
 
   const tlMorningState = morningComplete ? "done" : morningStarted ? "active" : "hot";
+  const tlNow          = timelineNodeForPhase(productionPhase.id);
 
   return (
     <div className="cc">
@@ -244,31 +271,30 @@ export function CommandCenterView({ onNavigate }: Props) {
         <div className="cc-context">
           <span className="cc-col-cap">{t("nav.founderBrief")}</span>
           <div className="cc-lines">
+            {showBriefBlocked ? (
+              <BriefRow
+                label={t("fbrief.primary.blocked")}
+                field={brief.topBlockedItem}
+                onGo={() => onNavigate(brief.topBlockedItem.navId)}
+              />
+            ) : null}
             <BriefRow
-              label={t("fbrief.row.today")}
+              label={t("fbrief.primary.action")}
               field={brief.topTodayAction}
               onGo={() => onNavigate(brief.topTodayAction.navId)}
             />
             <BriefRow
-              label={t("fbrief.row.leverage")}
+              label={t("fbrief.primary.leverage")}
               field={brief.highestLeverageMove}
               onGo={() => onNavigate(brief.highestLeverageMove.navId)}
             />
-            <BriefRow
-              label={t("fbrief.row.hero")}
-              field={brief.heroStatus}
-              onGo={() => onNavigate(brief.heroStatus.navId)}
-            />
-            <BriefRow
-              label={t("fbrief.row.launch")}
-              field={brief.launchStatus}
-              onGo={() => onNavigate(brief.launchStatus.navId)}
-            />
-            <BriefRow
-              label={t("fbrief.row.blocked")}
-              field={brief.topBlockedItem}
-              onGo={() => onNavigate(brief.topBlockedItem.navId)}
-            />
+            {briefConstraint ? (
+              <BriefRow
+                label={t("fbrief.primary.constraint")}
+                field={{ text: briefConstraint.text, navId: briefConstraint.navId }}
+                onGo={() => onNavigate(briefConstraint.navId)}
+              />
+            ) : null}
           </div>
           {carryForward.length > 0 && (
             <div className="cc-carry">
@@ -290,28 +316,27 @@ export function CommandCenterView({ onNavigate }: Props) {
         </div>
       </div>
 
-      {/* ── Morning data status strip ────────────────────────────────────────── */}
-      <div className="cc-morning">
-        <div className="cc-morning__status">
-          <span className={`cc-morning__ind cc-morning__ind--${hasMorningInput ? "ok" : "empty"}`} aria-hidden />
-          <span className="cc-morning__label">
-            {hasMorningInput ? "Утренний запуск заполнен" : "Утренний запуск не заполнен"}
-          </span>
-        </div>
-        <button
-          type="button"
-          className="cc-morning__action"
-          onClick={() => onNavigate("morningStart")}
-        >
-          {hasMorningInput ? "Изменить данные" : "Заполнить →"}
-        </button>
-      </div>
+      {/* ── Morning data — inline operational command ──────────────────────── */}
+      <button
+        type="button"
+        className={`cc-morning-line cc-morning-line--${hasMorningInput ? "ok" : "empty"}`}
+        onClick={() => onNavigate("morningStart")}
+      >
+        <span className="cc-morning-line__ind" aria-hidden />
+        <span className="cc-morning-line__txt">
+          {hasMorningInput ? "Утренний запуск внесён" : "Утренний запуск не внесён"}
+        </span>
+        <span className="cc-morning-line__act">
+          {hasMorningInput ? "Изменить →" : "Внести →"}
+        </span>
+      </button>
 
       {/* ── Production timeline ──────────────────────────────────────────────── */}
       <div className="cc-tl" role="navigation" aria-label="Производственный ритм">
         <button
           type="button"
           className={`cc-tl__node cc-tl__node--${tlMorningState}`}
+          data-sig-priority={tlNow === "morning" ? "dominant" : undefined}
           onClick={() => onNavigate("morningStart")}
         >
           <span className="cc-tl__node-cap">Запуск смены</span>
@@ -329,19 +354,34 @@ export function CommandCenterView({ onNavigate }: Props) {
           </span>
         </button>
         <div className="cc-tl__sep" aria-hidden />
-        <button type="button" className="cc-tl__node cc-tl__node--warm" onClick={() => onNavigate("productionPressure")}>
+        <button
+          type="button"
+          className="cc-tl__node cc-tl__node--warm"
+          data-sig-priority={tlNow === "production" ? "dominant" : undefined}
+          onClick={() => onNavigate("productionPressure")}
+        >
           <span className="cc-tl__node-cap">В течение смены</span>
           <span className="cc-tl__node-label">{t("nav.productionPressure")}</span>
           <span className="cc-tl__node-hint">контроль давления</span>
         </button>
         <div className="cc-tl__sep" aria-hidden />
-        <button type="button" className="cc-tl__node cc-tl__node--cold" onClick={() => onNavigate("controlTower")}>
+        <button
+          type="button"
+          className="cc-tl__node cc-tl__node--cold"
+          data-sig-priority={tlNow === "control" ? "dominant" : undefined}
+          onClick={() => onNavigate("controlTower")}
+        >
           <span className="cc-tl__node-cap">Управление</span>
           <span className="cc-tl__node-label">{t("nav.controlTower")}</span>
           <span className="cc-tl__node-hint">башня контроля</span>
         </button>
         <div className="cc-tl__sep" aria-hidden />
-        <button type="button" className="cc-tl__node cc-tl__node--cold" onClick={() => onNavigate("eveningClose")}>
+        <button
+          type="button"
+          className="cc-tl__node cc-tl__node--cold"
+          data-sig-priority={tlNow === "close" ? "dominant" : undefined}
+          onClick={() => onNavigate("eveningClose")}
+        >
           <span className="cc-tl__node-cap">Финал дня</span>
           <span className="cc-tl__node-label">{t("dwr.action.closeDay")}</span>
           <span className="cc-tl__node-hint">закрытие смены</span>
@@ -508,19 +548,19 @@ export function CommandCenterView({ onNavigate }: Props) {
           max-width: 58ch;
         }
 
-        /* Primary CTA */
+        /* Primary CTA — sentence-case operational command */
         .cc-hero__cta {
           display: inline-flex;
           align-items: center;
           gap: 10px;
           border: none;
-          padding: 12px 26px;
-          border-radius: 9px;
-          font-family: var(--font-display);
-          font-weight: 700;
-          font-size: 0.78rem;
-          letter-spacing: 0.10em;
-          text-transform: uppercase;
+          padding: 14px 28px;
+          border-radius: 10px;
+          font-family: var(--font-body);
+          font-weight: 600;
+          font-size: 0.95rem;
+          letter-spacing: -0.005em;
+          text-transform: none;
           color: #06060d;
           cursor: pointer;
           background: linear-gradient(138deg, #eceaff 0%, #cec7ff 50%, #bac0ff 100%);
@@ -699,72 +739,72 @@ export function CommandCenterView({ onNavigate }: Props) {
           align-self: flex-start;
         }
 
-        /* ── Morning status strip ──────────────────────────────────────────── */
-        .cc-morning {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          padding: 14px 0;
-          border-bottom: 1px solid var(--line-faint);
-        }
-        .cc-morning__status {
-          display: flex;
-          align-items: center;
+        /* ── Morning data — inline operational command ─────────────────────── */
+        .cc-morning-line {
+          display: inline-flex;
+          align-items: baseline;
           gap: 10px;
+          padding: 14px 0;
+          border: none;
+          background: none;
+          cursor: pointer;
+          font: inherit;
+          color: inherit;
+          text-align: left;
+          border-bottom: 1px solid var(--line-faint);
+          width: 100%;
+          transition: opacity 0.15s var(--ease-out);
         }
-        .cc-morning__ind {
-          width: 8px;
-          height: 8px;
+        .cc-morning-line:hover { opacity: 0.78; }
+
+        .cc-morning-line__ind {
+          display: inline-block;
+          align-self: center;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
           flex-shrink: 0;
         }
-        .cc-morning__ind--ok    {
-          background: rgba(80, 205, 125, 0.90);
-          box-shadow: 0 0 8px rgba(80, 205, 125, 0.45);
-        }
-        .cc-morning__ind--empty {
-          background: rgba(200, 155, 65, 0.80);
-          box-shadow: 0 0 6px rgba(200, 155, 65, 0.30);
-        }
-        .cc-morning__label {
-          font-size: 0.72rem;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: var(--c3);
-        }
-        .cc-morning__action {
-          border: 1px solid var(--line-soft);
-          background: var(--surface-1);
+        .cc-morning-line--ok    .cc-morning-line__ind { background: rgba(80, 205, 125, 0.85); }
+        .cc-morning-line--empty .cc-morning-line__ind { background: rgba(200, 155, 65, 0.85); }
+
+        .cc-morning-line__txt {
+          flex: 1;
+          font-size: 0.82rem;
           color: var(--c2);
-          font-family: var(--font-body);
-          font-size: 0.72rem;
-          font-weight: 600;
-          padding: 7px 16px;
-          border-radius: 7px;
-          cursor: pointer;
-          transition: background 0.16s, border-color 0.16s, color 0.16s;
+          line-height: 1.4;
         }
-        .cc-morning__action:hover {
-          background: var(--surface-2);
-          border-color: var(--line-med);
+        .cc-morning-line--empty .cc-morning-line__txt { color: rgba(220, 170, 80, 0.78); }
+
+        .cc-morning-line__act {
+          font-size: 0.78rem;
+          color: var(--c3);
+          border-bottom: 1px solid var(--line-soft);
+          padding-bottom: 1px;
+          transition: color 0.15s var(--ease-out), border-color 0.15s var(--ease-out);
+        }
+        .cc-morning-line:hover .cc-morning-line__act {
           color: var(--c1);
+          border-bottom-color: var(--line-accent);
         }
 
-        /* ── Production timeline ─────────────────────────────────────────────── */
+        /* ── Production timeline — open, rule-separated ─────────────────────── */
         .cc-tl {
           display: flex;
           align-items: stretch;
-          margin-top: 6px;
-          background: rgba(12, 12, 20, 0.40);
-          border-radius: 12px;
-          border: 1px solid var(--line-faint);
-          overflow: hidden;
+          margin-top: 24px;
+          padding-top: 24px;
+          background: transparent;
+          border-radius: 0;
+          border: none;
+          border-top: 1px solid var(--line-faint);
+          overflow: visible;
         }
         .cc-tl__sep {
           width: 1px;
           background: var(--line-faint);
           flex-shrink: 0;
+          align-self: stretch;
         }
         .cc-tl__node {
           flex: 1;
@@ -820,8 +860,8 @@ export function CommandCenterView({ onNavigate }: Props) {
         /* Warm */
         .cc-tl__node--warm .cc-tl__node-label { color: var(--c2); }
         /* Cold */
-        .cc-tl__node--cold { opacity: 0.52; }
-        .cc-tl__node--cold:hover { opacity: 0.80; }
+        .cc-tl__node--cold { opacity: 0.42; }
+        .cc-tl__node--cold:hover { opacity: 0.72; }
 
         /* ── Responsive ─────────────────────────────────────────────────────── */
         @media (max-width: 900px) {
@@ -834,7 +874,7 @@ export function CommandCenterView({ onNavigate }: Props) {
             border-left: none;
             border-top: 1px solid var(--line-faint);
           }
-          .cc-tl { flex-wrap: wrap; gap: 0; border-radius: 10px; }
+          .cc-tl { flex-wrap: wrap; gap: 0; border-radius: 0; padding-top: 16px; margin-top: 16px; }
           .cc-tl__sep { display: none; }
           .cc-tl__node { flex: 1 1 140px; border-bottom: 1px solid var(--line-faint); }
         }

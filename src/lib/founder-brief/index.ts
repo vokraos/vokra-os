@@ -16,5 +16,8 @@ export {
   getFounderBriefDailySummaryFromCache,
   FOUNDER_BRIEF_EVENT,
   notifyFounderBriefUpdated,
+  buildConstraintDisplay,
+  hasBriefShift,
+  isNominalBlocked,
 } from "./digest";
 export { getFounderBriefSignals, type FounderBriefSignals } from "./signals";

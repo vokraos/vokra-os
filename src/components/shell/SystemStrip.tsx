@@ -29,8 +29,10 @@ export function SystemStrip({ active }: Props) {
 
   const priority = clip(decision.priorityHeadlineRu || synthesis.topOpportunityRu, 160);
 
+  const isFounderBrief = active === "founderBrief";
+
   return (
-    <div className="os-strip">
+    <div className={`os-strip${isFounderBrief ? " os-strip--quiet" : ""}`}>
       <div className="workspace os-strip__inner">
         <div className="os-strip__cluster">
           <span className="os-strip__pill os-strip__pill--mode">{t(REGIME_KEYS[regime])}</span>
@@ -40,7 +42,7 @@ export function SystemStrip({ active }: Props) {
           </span>
         </div>
 
-        {priority ? (
+        {priority && active !== "founderBrief" ? (
           <div className="os-strip__priority">
             <span className="os-strip__priority-k">{t("shell.stripPriority")}</span>
             <span className="os-strip__priority-v">{priority}</span>

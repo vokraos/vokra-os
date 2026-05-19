@@ -28,7 +28,8 @@ export {
   ASSORTMENT_HYDRATE_SESSION_KEY,
   ASSORTMENT_EXECUTION_LEARNING_STORAGE_KEY,
 } from "./types";
-export { deriveAssortmentActions, summarizeAssortmentActions } from "./derive";
+export { deriveStructuralAssortmentActions, summarizeAssortmentActions } from "./derive";
+export { deriveAssortmentActions, buildAssortmentEnrichmentContext, getCachedDerivedAssortmentActions, getCachedMergedAssortmentActions } from "./orchestrate";
 export { getAssortmentStatusMap, setAssortmentActionStatus, mergeStatusesIntoActions, bulkSetAssortmentStatuses } from "./storage";
 export { buildAssortmentMarkdownPlan, buildAssortmentJson, buildAssortmentCopySummary } from "./export";
 export { parseAssortmentActionsMemoryPayload } from "./memoryPayload";
@@ -40,8 +41,8 @@ export {
   ASSORTMENT_PLAN_CONTINUITY_STORAGE_KEY,
 } from "./plan-continuity";
 export type { PlanContinuitySnapshot } from "./plan-continuity";
-export { getAssortmentDailyDigest, getAssortmentDailyDigestFallback, getAssortmentChecklistDigestLine, getAssortmentReviewCarryDigestLine, getAssortmentRepeatedBlockerDigestLine, getAssortmentLearningDigestLine, getAssortmentExecutiveReportDigestLine } from "./digest";
-export type { AssortmentDailyDigest } from "./digest";
+export { getAssortmentDailyDigest, getAssortmentDailyDigestFallback, getAssortmentChecklistDigestLine, getAssortmentReviewCarryDigestLine, getAssortmentRepeatedBlockerDigestLine, getAssortmentLearningDigestLine, getAssortmentExecutiveReportDigestLine, buildAssortmentConsoleDigests } from "./digest";
+export type { AssortmentDailyDigest, AssortmentConsoleDigests } from "./digest";
 export { buildAssortmentExecutionPlan } from "./execution-plan";
 export { buildAssortmentExecutionReview, computeAssortmentReviewCarryDigest } from "./execution-review";
 export { buildExecutionPlanMarkdown, buildExecutionPlanJson, buildAssortmentDailyPlanCopy } from "./plan-export";

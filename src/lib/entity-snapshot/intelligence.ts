@@ -1,4 +1,5 @@
 import type { NavId } from "../../types";
+import { readIntelCache, writeIntelCache } from "./cache";
 import type { CardEntityRow, EntitySnapshot, SkuEntityRow } from "./types";
 
 export type CorridorSummaryRow = {
@@ -185,10 +186,12 @@ function buildStockModeSummary(skus: SkuEntityRow[], counts: Record<string, numb
 function buildSeoGap(cards: CardEntityRow[], skus: SkuEntityRow[]): SeoGapSummary {
   const cardsMissingSeo = cards.filter((c) => c.missingSeo).length;
   const byCorridor = new Map<string, number>();
+  const corridorsWithMissingSeo = new Set<string>();
   for (const c of cards) {
     if (!c.missingSeo) continue;
     const k = ckey(c.corridor);
     byCorridor.set(k, (byCorridor.get(k) ?? 0) + 1);
+    corridorsWithMissingSeo.add(k);
   }
   let topGapCorridor: string | null = null;
   let top = 0;
@@ -198,10 +201,10 @@ function buildSeoGap(cards: CardEntityRow[], skus: SkuEntityRow[]): SeoGapSummar
       topGapCorridor = cor;
     }
   }
-  const skusInCorridorsWithoutSeoSignal = skus.filter((s) => {
-    const cc = ckey(s.corridor);
-    return cards.some((c) => ckey(c.corridor) === cc && c.missingSeo);
-  }).length;
+  let skusInCorridorsWithoutSeoSignal = 0;
+  for (const s of skus) {
+    if (corridorsWithMissingSeo.has(ckey(s.corridor))) skusInCorridorsWithoutSeoSignal++;
+  }
   return { cardsMissingSeo, skusInCorridorsWithoutSeoSignal, topGapCorridor };
 }
 
@@ -458,6 +461,12 @@ function buildActionQueue(
 
 /** Derives operational intelligence from an active snapshot (import fields only). */
 export function deriveSnapshotIntelligence(snapshot: EntitySnapshot): SnapshotIntelligence {
+  const cached = readIntelCache(snapshot);
+  if (cached) return cached;
+  return writeIntelCache(snapshot, computeSnapshotIntelligence(snapshot));
+}
+
+function computeSnapshotIntelligence(snapshot: EntitySnapshot): SnapshotIntelligence {
   const skus = snapshot.skuEntities;
   const cards = snapshot.cardEntities;
   const corridorSummary = buildCorridorSummary(skus, cards);

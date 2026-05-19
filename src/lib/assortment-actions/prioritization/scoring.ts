@@ -1,3 +1,4 @@
+import type { SnapshotIntelligence } from "../../entity-snapshot/intelligence";
 import { deriveSnapshotIntelligence } from "../../entity-snapshot/intelligence";
 import type { EntitySnapshot } from "../../entity-snapshot/types";
 import type {
@@ -14,7 +15,11 @@ import { buildAssortmentExplainability } from "./explain";
 import { scoreSingleAction } from "./queues";
 import { loadEconomicGuardrails } from "../../economic-guardrails";
 import { augmentAssortmentWithGuardrails } from "../../economic-guardrails/integration";
-import { augmentAssortmentWithAdPressure, buildPrimaryAdvertisingPressureReport } from "../../ad-pressure";
+import type { AdvertisingPressureReport } from "../../ad-pressure/types";
+import { augmentAssortmentWithAdPressure } from "../../ad-pressure/recommendations";
+import { buildAdvertisingPressureReport } from "../../ad-pressure/recommendations";
+import { gatherAdPressureContext } from "../../ad-pressure/gather";
+import { gatherEconomicPressureContext } from "../../economic-pressure/gather";
 import { augmentAssortmentWithMarketTiming } from "../../market-timing";
 import { peekMarketTimingSession } from "../../market-timing/session";
 import { augmentAssortmentWithCorridorStrategy } from "../../corridor-strategy";
@@ -27,6 +32,10 @@ import { augmentAssortmentWithProductionPressure } from "../../production-pressu
 import { peekProductionPressureSession } from "../../production-pressure/session";
 import { augmentAssortmentWithPricePressure, buildPricePositioningForContext } from "../../price-positioning";
 import { augmentAssortmentWithUnitEconomics, loadUnitEconomicsBundle } from "../../unit-economics";
+
+export type AssortmentEnrichmentContext = {
+  adReport: AdvertisingPressureReport;
+};
 
 export const ASSORTMENT_ECON_PLACEHOLDER: Pick<
   AssortmentAction,
@@ -104,8 +113,23 @@ function stripEcon(a: AssortmentAction): CoreAction {
 }
 
 /** Attach economic profile + executive queues (structure-only heuristics). */
-export function enrichAssortmentActions(snapshot: EntitySnapshot, actions: AssortmentAction[]): AssortmentAction[] {
-  const intel = deriveSnapshotIntelligence(snapshot);
+export function enrichAssortmentActions(
+  snapshot: EntitySnapshot,
+  actions: AssortmentAction[],
+  intel: SnapshotIntelligence = deriveSnapshotIntelligence(snapshot),
+  enrichment?: AssortmentEnrichmentContext,
+): AssortmentAction[] {
+  const adReport =
+    enrichment?.adReport ??
+    buildAdvertisingPressureReport(
+      gatherAdPressureContext({
+        econ: gatherEconomicPressureContext({
+          snapshot,
+          intel,
+          structuralActions: actions,
+        }),
+      }),
+    );
   const maxTouch = Math.max(1, snapshot.skuEntities.length + snapshot.cardEntities.length);
   const dupClusters = duplicateCodeClusters(snapshot.skuEntities);
   const unitBundle = loadUnitEconomicsBundle();
@@ -172,7 +196,7 @@ export function enrichAssortmentActions(snapshot: EntitySnapshot, actions: Assor
     );
     const ppr = augmentAssortmentWithPricePressure(merged, priceReport);
     if (ppr.riskReasons?.length) merged = { ...merged, ...ppr };
-    const adp = augmentAssortmentWithAdPressure(merged, buildPrimaryAdvertisingPressureReport());
+    const adp = augmentAssortmentWithAdPressure(merged, adReport);
     if (adp.riskReasons?.length) merged = { ...merged, ...adp };
     const ssf = augmentAssortmentWithScalingSafety(merged, ssfReport);
     if (ssf.riskReasons?.length) merged = { ...merged, ...ssf };

@@ -10,4 +10,5 @@ export const STORAGE_KEYS = {
   activeProjectId: 'vokra.activeProjectId',
   strategicDate: 'vokra.ai.strategicDate',
   morningProductionInput: 'vokra.morningProductionInput.v1',
+  wbApiToken: 'vokra.wb.apiToken',
 } as const;
